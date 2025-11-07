@@ -31,6 +31,7 @@ if (path.includes("index.html")) {
   if (!user) {
     window.location.href = "login.html";
   } else {
+    // MIGHT HAVE TO MOVE LOGIC TO OTHER TABS
     const { data: reservations, error } = await supabase
       .from("reservations")
       .select("*")
