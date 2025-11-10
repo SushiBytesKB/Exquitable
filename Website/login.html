@@ -4,10 +4,24 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login</title>
-    <link rel="stylesheet" href="CSS/style.css" />
+    <link rel="stylesheet" href="CSS/login.css" />
   </head>
   <body>
-    <h1>Login</h1>
-    <script src="JS/app.js"></script>
+    <div class="login_container">
+      <h1>Login</h1>
+      <form id="loginForm">
+        <label for="email">Email:</label>
+        <input type="text" id="email" name="email" required />
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required />
+
+        <button type="submit">Login</button>
+        <p id="errorMessage" style="color: red; margin-top: 10px;"></p>
+      </form>
+    </div>
+
+
+    <script type="module" src="JS/app.js"></script>
   </body>
 </html>
