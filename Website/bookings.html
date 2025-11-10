@@ -4,10 +4,29 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bookings</title>
-    <link rel="stylesheet" href="CSS/style.css" />
+    <link rel="stylesheet" href="CSS/booking.css" />
   </head>
   <body>
-    <h1>Bookings</h1>
-    <script src="JS/app.js"></script>
+    <div class="bookings_container">
+      <h1>Bookings</h1>
+      <div id="bookingsTableContainer">
+        <table id="bookingsTable">
+          <thead>
+            <tr>
+              <th>Booking ID</th>
+              <th>Table No</th>
+              <th>User Email</th>
+              <th>Guests</th>
+              <th>Reservation Time</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+
+<script type="module" src="JS/app.js"></script>
   </body>
 </html>
