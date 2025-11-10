@@ -16,7 +16,7 @@ if (path.includes("login.html")) {
       });
 
       if (error) {
-        alert(`Error: ${error.message}`);
+        errorMessage.textContent = error.message;
       } else {
         window.location.href = "index.html";
       }
