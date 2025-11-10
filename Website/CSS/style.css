@@ -18,6 +18,7 @@ header
 body
 {
   background-color: #F7F3E8; 
+  font-family: 'Inter', sans-serif;
 }
 
 footer
@@ -28,6 +29,8 @@ footer
   padding-right: 2rem;
 }
 
+
+
 .cardDashboard
 {
   height: 45rem;
@@ -35,18 +38,130 @@ footer
   margin-left: auto;
   margin-right: auto;
   margin-top: 150px;
-
+  position: relative;
+  text-align: center;
   padding: 3rem;
 
-  background-color: white;
+  background-image: url("doodleBackgroundEdited.png");
+  background-size: auto;
   border: 2px solid black;
   border-radius: 3px;
 
   box-shadow: 8px 8px 20px rgba(0, 0, 0, 0.2);
-
-  text-align: center;
+  
+  z-index: 5;
 }
 
+.overlay {
+  background-color: rgb(255, 255, 255, 0.3);
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  top: 0;
+}
+
+.text 
+{
+  position: relative;
+  z-index: 2;
+  margin: auto;
+}
+
+.textBookings
+{
+  position: relative;
+  z-index: 3;
+}
+
+.bookings
+{
+  margin: 4rem 3rem;
+
+  height: auto;
+  width: 95%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 150px;
+  text-align: center;
+  position: relative;
+  padding-bottom: 3rem;
+  padding-left: 1.2rem;
+
+  background-image: url("doodleBackgroundEdited.png");
+  background-size: auto;
+  background-repeat: repeat;
+  border: 2px solid black;
+  border-radius: 3px;
+
+  box-shadow: 8px 8px 20px rgba(0, 0, 0, 0.2);
+  
+  z-index: 5;
+}
+
+.searchFilter
+{
+  margin-left: 25rem;
+  margin-top: 2rem;
+  
+}
+
+.search-container {
+  display: flex;
+}
+.searchBar {
+  flex-grow: 1;
+  font-size: 1.5rem; 
+  height: 3.4rem;
+  width: 30rem;
+  
+  padding: 0.8rem; 
+  border: 1px solid #4E342E;
+}
+
+.btnGo {
+  color: #F7F3E8; 
+  background-color: #BF360C;
+  font-size: 1.5rem;
+  padding: 0.8rem;
+  border: none;
+}
+
+.btnGo:hover {
+  background-color: #e23d0a;;
+  cursor: pointer;
+}
+
+.filterContainer
+{
+  margin-top: 2rem;
+
+}
+
+.sortOptions {
+  font-size: 1.5rem;
+  padding: 0.8rem; 
+  border: 1px solid #795548; 
+  border-radius: 3px;
+  background-color: white;
+  width: 15rem;
+}
+
+.showOnlyToday
+{
+  margin-left: 5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  vertical-align: middle;
+}
+
+.filterContainer label {
+  font-size: 2rem;
+  color: #3E2723; 
+  margin-right: 0.5rem;
+  vertical-align: middle; 
+}
 
 .h1Dashboard
 {
@@ -70,6 +185,23 @@ footer
   background-color: #79443a;
   cursor: pointer;
 }
+
+.btnToDashboard
+{
+  color: #F7F3E8; 
+  background-color: #5e3830;
+  font-size: 1.8rem;
+  padding: 0.8rem;
+  margin: 0;
+  float: left;
+}
+
+.btnToDashboard:hover
+{
+  background-color: #79443a;
+  cursor: pointer;
+}
+
 
 a {
   color:  #F7F3E8; 
