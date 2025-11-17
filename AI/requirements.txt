@@ -1,0 +1,9 @@
+# Put all of the libraries here
+fastapi
+uvicorn[standard]
+supabase
+python-dotenv
+torch
+torchvision
+numpy
+pandas
