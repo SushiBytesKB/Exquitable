@@ -1,13 +1,39 @@
  
  
- const testReservation = 
+ const testReservations = [
   {
     name: "John Smith",
     table: 305,
     numPeople: 3,
     time: "13:45",
-    notes: "It is the birthday of his wife so please greet them with champagne"
-  };
+    notes: "It is the birthday of his wife so please greet them with champagne",
+    status: "booked"
+  },
+  {
+    name: "James Miller",
+    table: 415,
+    numPeople: 3,
+    time: "12:25",
+    notes: "none",
+    status: "booked"
+  },
+  {
+    name: "John Smith",
+    table: 305,
+    numPeople: 3,
+    time: "13:45",
+    notes: "It is the birthday of his wife so please greet them with champagne",
+    status: "booked"
+  },
+  {
+    name: "James Miller",
+    table: 415,
+    numPeople: 3,
+    time: "12:25",
+    notes: "none",
+    status: "booked"
+  }
+];
 
 
   function reservationCard(reservation)
@@ -22,15 +48,22 @@
     <p>Time: ${reservation.time}</p>
     <p>Table: ${reservation.table}</p>
     <hr>
-    <p>Notes: ${reservation.notes}</p>
-    <button>Complete</button>`;
+    <p class= "details">Notes: ${reservation.notes}</p>
+    <button class = "btnComplete">Complete</button>
+    <button class = "btnDelete">Delete</button>
+    <button class = "btnModify">Modify</button>`;
 
     return reservationCardElement;
   }
 
   const reservationsDivElement = document.getElementById('reservations');
 
-  const newReservation = reservationCard(testReservation);
-
-  reservationsDivElement.appendChild(newReservation);
+  for(reservation of testReservations)
+  {
+    if(reservation.status == "booked")
+    {
+      const newReservation = reservationCard(reservation);
+      reservationsDivElement.appendChild(newReservation);
+    }
+  }
 
