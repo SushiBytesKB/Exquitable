@@ -47,7 +47,9 @@ if (path.includes("index.html")) {
 
 if (path.includes("bookings.html")) {
   (async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
     if (!user) {
       window.location.href = "login.html";
@@ -62,7 +64,8 @@ if (path.includes("bookings.html")) {
 
       if (error) {
         console.error("Error fetching reservations:", error.message);
-        if (tbody) tbody.innerHTML = `<tr><td colspan="5">Error loading reservations</td></tr>`;
+        if (tbody)
+          tbody.innerHTML = `<tr><td colspan="5">Error loading reservations</td></tr>`;
         return;
       }
 

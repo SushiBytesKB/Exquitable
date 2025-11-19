@@ -1,0 +1,2 @@
+SUPABASE_URL=[*Put Key Here*]
+SUPABASE_SERVICE_KEY=[*Put Key Here*]
