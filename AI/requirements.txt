@@ -1,4 +1,4 @@
-# Put all of the libraries here
+# Put all of the libraries required by user here
 fastapi
 uvicorn[standard]
 supabase
