@@ -1,0 +1,112 @@
+.reservation-form,
+.update-form {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #333;
+}
+
+.form-group input,
+.form-group select,
+.update-form input,
+.update-form select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.update-form input:focus,
+.update-form select:focus {
+  outline: none;
+  border-color: #333;
+}
+
+.form-group small {
+  display: block;
+  margin-top: 5px;
+  color: #666;
+  font-size: 14px;
+}
+
+.btn-submit,
+.btn-delete,
+.btn-cancel {
+  padding: 12px 30px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.btn-submit {
+  background-color: #333;
+  color: #fff;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.btn-submit:hover {
+  background-color: #555;
+}
+
+.btn-submit:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.error-message,
+.success-message {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 5px;
+  display: none;
+}
+
+.error-message {
+  color: red;
+  background-color: #ffe6e6;
+}
+
+.success-message {
+  color: green;
+  background-color: #e6ffe6;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 20px;
+  color: #333;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.loading {
+  color: #666;
+  font-style: italic;
+}
+
+.is-hidden {
+  display: none !important;
+}
+#tableLoading,
+#restaurantLoading {
+  display: none;
+}
+

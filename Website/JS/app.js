@@ -27,7 +27,7 @@ if (path.includes("login.html")) {
 // --- LOGIC FOR reservation.html (owner-only reservations) ---
 if (path.endsWith("reservation.html")) {
   (async () => {
-    console.log("📌 Reservation page detected. Setting up form submission...");
+  console.log("📌 Reservation page detected. Setting up form submission...");
 
     const { data: { user } } = await supabase.auth.getUser();
     
@@ -41,31 +41,235 @@ if (path.endsWith("reservation.html")) {
     const tableSelect = document.querySelector("#table_id");
     const tableLoading = document.querySelector("#tableLoading");
     let restaurantId = null;
+    let restaurantDefaultHours = { open: null, close: null };
+    let restaurantOperatingHours = null;
 
-    // Helper function to get all tables for a restaurant
-    async function getTablesForRestaurant(restaurantId) {
-      if (!restaurantId) {
-        console.error("❌ Restaurant ID is required");
-        return { tables: [], error: "Restaurant ID is required" };
+    const parseTimeToMinutes = (timeString) => {
+      if (!timeString) return null;
+      let cleaned = String(timeString).trim().toLowerCase();
+      if (!cleaned) return null;
+
+      cleaned = cleaned.replace(/\s+/g, "");
+      const hyphenIndex = cleaned.indexOf("-");
+      if (hyphenIndex !== -1) {
+        cleaned = cleaned.slice(0, hyphenIndex);
       }
 
-      console.log("🔍 Fetching tables for restaurant:", restaurantId);
+      const timeRegex = /^(\d{1,2})(?::(\d{2}))?(am|pm)?$/;
+      const match = cleaned.match(timeRegex);
 
-      const { data: tables, error } = await supabase
-        .from("restaurant_seating")
-        .select("id, restaurant_id, table_name, room_name, capacity")
-        .eq("restaurant_id", restaurantId)
-        .order("room_name", { ascending: true })
-        .order("table_name", { ascending: true });
+      if (match) {
+        let hours = parseInt(match[1], 10);
+        let minutes = match[2] ? parseInt(match[2], 10) : 0;
+        const meridiem = match[3];
 
-      if (error) {
-        console.error("❌ Error fetching tables:", error.message);
-        return { tables: [], error: error.message };
+        if (Number.isNaN(hours) || Number.isNaN(minutes)) return null;
+
+        if (meridiem === "pm" && hours !== 12) hours += 12;
+        if (meridiem === "am" && hours === 12) hours = 0;
+
+        return hours * 60 + minutes;
       }
 
-      console.log("✅ Tables found for restaurant:", { restaurantId, count: tables?.length || 0, tables });
-      return { tables: tables || [], error: null };
+      const [hourStr, minuteStr = "0"] = cleaned.split(":");
+      const hours = Number(hourStr);
+      const minutes = Number(minuteStr);
+      if (Number.isNaN(hours) || Number.isNaN(minutes)) return null;
+      return hours * 60 + minutes;
+    };
+
+    const formatDisplayTime = (timeString) => {
+      if (!timeString) return "";
+      const [hourStr, minuteStr = "0"] = timeString.split(":");
+      const hours = Number(hourStr);
+      const minutes = Number(minuteStr);
+      if (Number.isNaN(hours) || Number.isNaN(minutes)) return timeString;
+      const date = new Date();
+      date.setHours(hours, minutes, 0, 0);
+      return date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+    };
+
+    const normalizeHoursObject = (raw) => {
+      if (!raw || typeof raw !== "object") return null;
+      const normalized = {};
+      const closedTokens = new Set(["", "null", "none", "closed", "holiday", "off"]);
+
+      for (const [key, value] of Object.entries(raw)) {
+        const dayKey = String(key || "").toLowerCase();
+        if (!dayKey) continue;
+
+        if (value === "Null" || value === undefined) {
+          normalized[dayKey] = null;
+          continue;
+        }
+
+        if (typeof value === "string") {
+          const cleaned = value.trim();
+          if (closedTokens.has(cleaned.toLowerCase())) {
+            normalized[dayKey] = null;
+            continue;
+          }
+
+          if (cleaned.includes("-")) {
+            const [openStr, closeStr] = cleaned.split("-");
+            const open = openStr?.trim();
+            const close = closeStr?.trim();
+            if (open && close) {
+              normalized[dayKey] = { open, close };
+            }
+          }
+          continue;
+        }
+
+        if (typeof value === "object") {
+          const openVal =
+            value.open ??
+            value.opens ??
+            value.open_time ??
+            value.start ??
+            value.from ??
+            null;
+          const closeVal =
+            value.close ??
+            value.closes ??
+            value.close_time ??
+            value.end ??
+            value.to ??
+            null;
+
+          if (!openVal || !closeVal) {
+            normalized[dayKey] = null;
+          } else {
+            normalized[dayKey] = { open: openVal, close: closeVal };
+          }
+        }
+      }
+
+      return Object.keys(normalized).length ? normalized : null;
+    };
+
+    const setRestaurantHours = (restaurant) => {
+      restaurantDefaultHours = { open: null, close: null };
+      restaurantOperatingHours = null;
+
+      if (!restaurant) return;
+
+      if (restaurant.operating_hours) {
+        let hoursData = restaurant.operating_hours;
+        if (typeof hoursData === "string") {
+          try {
+            hoursData = JSON.parse(hoursData);
+          } catch (err) {
+            console.warn("Unable to parse operating_hours JSON:", err);
+          }
+        }
+        restaurantOperatingHours = normalizeHoursObject(hoursData);
+      }
+
+      restaurantDefaultHours = {
+        open:
+          restaurant.open_time ??
+          restaurant.opening_time ??
+          restaurant.opens_at ??
+          restaurant.open_at ??
+          null,
+        close:
+          restaurant.close_time ??
+          restaurant.closing_time ??
+          restaurant.closes_at ??
+          restaurant.close_at ??
+          null,
+      };
+    };
+
+    const getHoursForDate = (date) => {
+      if (restaurantOperatingHours) {
+        const dayName = date.toLocaleDateString("en-US", { weekday: "long" }).toLowerCase();
+        const specialMap = {
+          thursday: ["thu", "thur", "thurs"],
+          tuesday: ["tue", "tues"],
+          wednesday: ["wed", "weds"],
+          saturday: ["sat"],
+          sunday: ["sun"],
+          monday: ["mon"],
+          friday: ["fri"],
+        };
+
+        const candidates = new Set([
+          dayName,
+          dayName.slice(0, 3),
+          dayName.slice(0, 2),
+          ...(specialMap[dayName] || []),
+        ]);
+
+        for (const key of candidates) {
+          if (!key) continue;
+          if (Object.prototype.hasOwnProperty.call(restaurantOperatingHours, key)) {
+            const daily = restaurantOperatingHours[key];
+            if (!daily) {
+              return null;
+            }
+            if (daily.open && daily.close) {
+              return daily;
+            }
+            return null;
+          }
+        }
+      }
+
+      if (restaurantDefaultHours.open && restaurantDefaultHours.close) {
+        return restaurantDefaultHours;
+      }
+      return null;
+    };
+
+    const isWithinOperatingHours = (date) => {
+      const hours = getHoursForDate(date);
+      if (!hours) return { allowed: false, reason: "closed" };
+
+      const openMinutes = parseTimeToMinutes(hours.open);
+      const closeMinutes = parseTimeToMinutes(hours.close);
+      if (openMinutes === null || closeMinutes === null) return true;
+      if (openMinutes === closeMinutes) return true; // treat as 24 hours
+
+      const reservationMinutes = date.getHours() * 60 + date.getMinutes();
+      if (openMinutes < closeMinutes) {
+        return {
+          allowed: reservationMinutes >= openMinutes && reservationMinutes < closeMinutes,
+          hours,
+        };
+      }
+      // Closing time passes midnight
+      return {
+        allowed: reservationMinutes >= openMinutes || reservationMinutes < closeMinutes,
+        hours,
+      };
+    };
+
+  // Helper function to get all tables for a restaurant
+  async function getTablesForRestaurant(restaurantId) {
+    if (!restaurantId) {
+      console.error("❌ Restaurant ID is required");
+      return { tables: [], error: "Restaurant ID is required" };
     }
+
+    console.log("🔍 Fetching tables for restaurant:", restaurantId);
+
+    const { data: tables, error } = await supabase
+      .from("restaurant_seating")
+      .select("id, restaurant_id, table_name, room_name, capacity")
+      .eq("restaurant_id", restaurantId)
+      .order("room_name", { ascending: true })
+      .order("table_name", { ascending: true });
+
+    if (error) {
+      console.error("❌ Error fetching tables:", error.message);
+      return { tables: [], error: error.message };
+    }
+
+    console.log("✅ Tables found for restaurant:", { restaurantId, count: tables?.length || 0, tables });
+    return { tables: tables || [], error: null };
+  }
 
     // Function to load tables with available seats into dropdown
     async function loadTables(restaurantId) {
@@ -75,14 +279,14 @@ if (path.endsWith("reservation.html")) {
       tableSelect.innerHTML = '<option value="">Loading tables...</option>';
       if (tableLoading) tableLoading.style.display = "block";
 
-      const { tables, error } = await getTablesForRestaurant(restaurantId);
+          const { tables, error } = await getTablesForRestaurant(restaurantId);
 
       if (tableLoading) tableLoading.style.display = "none";
 
-      if (error) {
+          if (error) {
         tableSelect.innerHTML = '<option value="">Error loading tables</option>';
-        return;
-      }
+            return;
+          }
 
       if (tables && tables.length > 0) {
         // Fetch confirmed reservations to calculate available seats
@@ -101,9 +305,9 @@ if (path.endsWith("reservation.html")) {
                 allocatedSeatsByTable[reservation.table_id] = 0;
               }
               allocatedSeatsByTable[reservation.table_id] += reservation.guest_count || 0;
-            }
-          });
         }
+      });
+    }
 
         tableSelect.innerHTML = '<option value="">Select a table</option>';
         tables.forEach((table) => {
@@ -132,7 +336,7 @@ if (path.endsWith("reservation.html")) {
     const user_email = user.email;
     const { data: restaurants, error: rError } = await supabase
       .from("restaurants")
-      .select("id, name")
+      .select("*")
       .eq("email", user_email);
 
     if (rError) {
@@ -151,28 +355,29 @@ if (path.endsWith("reservation.html")) {
     }
 
     restaurantId = restaurants[0].id;
+    setRestaurantHours(restaurants[0]);
     console.log("✅ Restaurant ID automatically loaded for owner:", restaurantId);
 
     await loadTables(restaurantId);
 
     if (reservationForm) {
 
-      reservationForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
+    reservationForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-        // Get all values from the form inputs
-        const tableId = e.target.table_id?.value?.trim();
-        const customerEmail = e.target.customer_email?.value?.trim();
-        const customerName = e.target.customer_name?.value?.trim();
-        const guestCountValue = e.target.guest_count?.value || e.target.party_size?.value || e.target.guests?.value;
-        const guestCount = parseInt(guestCountValue, 10);
-        const start_time = e.target.start_time?.value || e.target.reservation_time?.value;
+      // Get all values from the form inputs
+      const tableId = e.target.table_id?.value?.trim();
+      const customerEmail = e.target.customer_email?.value?.trim();
+      const customerName = e.target.customer_name?.value?.trim();
+      const guestCountValue = e.target.guest_count?.value || e.target.party_size?.value || e.target.guests?.value;
+      const guestCount = parseInt(guestCountValue, 10);
+      const start_time = e.target.start_time?.value || e.target.reservation_time?.value;
 
-        // Basic validation check
-        if (!restaurantId) {
+      // Basic validation check
+      if (!restaurantId) {
           alert("Error: Restaurant not found. Please refresh the page.");
-          return;
-        }
+        return;
+      }
 
       if (!tableId) {
         alert("Please select a table for this reservation.");
@@ -181,6 +386,50 @@ if (path.endsWith("reservation.html")) {
 
       if (!Number.isFinite(guestCount) || guestCount <= 0) {
         alert("Please provide a valid party size greater than zero.");
+        return;
+      }
+
+      if (!start_time) {
+        alert("Please select a start time for this reservation.");
+        return;
+      }
+
+      const startDateTime = new Date(start_time);
+      if (Number.isNaN(startDateTime.getTime())) {
+        alert("Please provide a valid start time.");
+        return;
+      }
+
+      const hoursCheck = isWithinOperatingHours(startDateTime);
+      if (hoursCheck !== true && hoursCheck?.allowed === false) {
+        const hours = hoursCheck.hours || getHoursForDate(startDateTime);
+        const dayLabel = startDateTime.toLocaleDateString("en-US", { weekday: "long" });
+        if (!hours) {
+          alert(`The restaurant is closed on ${dayLabel}. Please choose another day.`);
+        } else {
+          const openLabel = formatDisplayTime(hours.open);
+          const closeLabel = formatDisplayTime(hours.close);
+          alert(
+            `The restaurant operates on ${dayLabel} from ${openLabel} to ${closeLabel}. Please choose another time.`
+          );
+        }
+        return;
+      }
+
+      if (!start_time) {
+        alert("Please select a start time for this reservation.");
+        return;
+      }
+
+
+      if (!isWithinOperatingHours(startDateTime)) {
+        const openLabel = formatDisplayTime(restaurantHours.open);
+        const closeLabel = formatDisplayTime(restaurantHours.close);
+        const hoursText =
+          openLabel && closeLabel
+            ? `${openLabel} - ${closeLabel}`
+            : "the restaurant's working hours";
+        alert(`Selected time is outside of the restaurant's working hours (${hoursText}). Please choose another time.`);
         return;
       }
 
@@ -265,36 +514,35 @@ if (path.endsWith("reservation.html")) {
       }
 
         // Calculate predicted_end_time (1 hour after start_time)
-        const startDateTime = new Date(start_time);
         const predictedEndDateTime = new Date(startDateTime);
         predictedEndDateTime.setHours(predictedEndDateTime.getHours() + 1);
 
         const start_time_iso = startDateTime.toISOString();
         const predicted_end_time_iso = predictedEndDateTime.toISOString();
 
-        // Create reservation data object
-        const reservationData = {
-          restaurant_id: restaurantId,
-          table_id: tableId,
-          customer_email: customerEmail,
-          customer_name: customerName,
+      // Create reservation data object
+      const reservationData = {
+        restaurant_id: restaurantId,
+        table_id: tableId,
+        customer_email: customerEmail,
+        customer_name: customerName,
           start_time: start_time_iso,
           predicted_end_time: predicted_end_time_iso,
-          guest_count: guestCount,
+        guest_count: guestCount,
           status: "confirmed", // Set status to confirmed by default
-        };
+      };
 
-        const { data, error } = await supabase
-          .from("reservations")
-          .insert([reservationData])
-          .select(); // Use select() to return the inserted data
+      const { data, error } = await supabase
+        .from("reservations")
+        .insert([reservationData])
+        .select(); // Use select() to return the inserted data
 
-        if (error) {
-          console.error("❌ Error submitting reservation:", error.message);
-          alert(`Failed to create reservation: ${error.message}. Check RLS policy.`);
-        } else {
-          alert("Reservation successfully created!");
-          reservationForm.reset(); // Clear the form on success
+      if (error) {
+        console.error("❌ Error submitting reservation:", error.message);
+        alert(`Failed to create reservation: ${error.message}. Check RLS policy.`);
+      } else {
+        alert("Reservation successfully created!");
+        reservationForm.reset(); // Clear the form on success
           
           // Reload table availability
           if (tableSelect) {
@@ -305,9 +553,9 @@ if (path.endsWith("reservation.html")) {
           setTimeout(() => {
             window.location.href = "bookings.html";
           }, 2000);
-        }
-      });
-    }
+      }
+    });
+  }
   })();
 }
 if (path.includes("index.html")) {
@@ -468,7 +716,7 @@ if (path.endsWith("updatesetupseating.html")) {
       if (errorEl) {
         errorEl.textContent = message;
         errorEl.style.display = "block";
-      } else {
+    } else {
         alert(message);
       }
       if (successEl) successEl.style.display = "none";
@@ -644,6 +892,339 @@ if (path.endsWith("updatesetupseating.html")) {
   })();
 }
 
+// --- LOGIC FOR updateReservation.html ---
+if (path.endsWith("updatereservation.html")) {
+  (async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      window.location.href = "login.html";
+      return;
+    }
+
+    const form = document.getElementById("updateReservationForm");
+    if (!form) return;
+
+    const reservationIdInput = document.getElementById("reservationId");
+    const statusSelect = document.getElementById("newStatus");
+    const priceInput = document.getElementById("price");
+    const actualEndInput = document.getElementById("actual_end_time");
+    const errorMessage = document.getElementById("errorMessage");
+    const successMessage = document.getElementById("successMessage");
+    const submitBtn = document.getElementById("submitBtn");
+
+    const showError = (message) => {
+      if (errorMessage) {
+        errorMessage.textContent = message;
+        errorMessage.style.display = "block";
+      }
+      if (successMessage) successMessage.style.display = "none";
+    };
+
+    const showSuccess = (message) => {
+      if (successMessage) {
+        successMessage.textContent = message;
+        successMessage.style.display = "block";
+      }
+      if (errorMessage) errorMessage.style.display = "none";
+    };
+
+    const hideMessages = () => {
+      if (errorMessage) errorMessage.style.display = "none";
+      if (successMessage) successMessage.style.display = "none";
+    };
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const reservationIdFromUrl = urlParams.get("id");
+    const statusFromUrl = urlParams.get("status");
+    const priceFromUrl = urlParams.get("price_paid");
+    const actualEndTimeFromUrl = urlParams.get("actual_end_time");
+
+    if (reservationIdFromUrl && reservationIdInput) {
+      reservationIdInput.value = reservationIdFromUrl;
+    }
+    if (statusFromUrl && statusSelect) {
+      statusSelect.value = statusFromUrl;
+    }
+    if (priceFromUrl && priceInput) {
+      priceInput.value = priceFromUrl;
+    }
+    if (actualEndTimeFromUrl && actualEndInput) {
+      const date = new Date(actualEndTimeFromUrl);
+      if (!Number.isNaN(date.getTime())) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        const hours = String(date.getHours()).padStart(2, "0");
+        const minutes = String(date.getMinutes()).padStart(2, "0");
+        actualEndInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+      }
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      hideMessages();
+
+      const reservationId = reservationIdInput?.value?.trim();
+      const newStatus = statusSelect?.value;
+      const price = priceInput?.value ? parseFloat(priceInput.value) : null;
+      const actualEndTime = actualEndInput?.value || null;
+
+      if (!reservationId) {
+        showError("Reservation ID is required");
+        return;
+      }
+      if (!newStatus) {
+        showError("Status is required");
+        return;
+      }
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Updating...";
+      }
+
+      try {
+        const updateData = { status: newStatus };
+        if (price !== null && !Number.isNaN(price)) {
+          updateData.price_paid = price;
+        }
+        if (actualEndTime) {
+          updateData.actual_end_time = actualEndTime;
+        }
+
+        const { error } = await supabase
+          .from("reservations")
+          .update(updateData)
+          .eq("id", reservationId);
+
+        if (error) {
+          console.error("Error updating reservation:", error);
+          showError(`Failed to update reservation: ${error.message}`);
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Update Reservation";
+          }
+        } else {
+          showSuccess("Reservation successfully updated!");
+          setTimeout(() => {
+            window.location.href = "bookings.html";
+          }, 2000);
+        }
+      } catch (err) {
+        console.error("Unexpected error:", err);
+        showError(`An unexpected error occurred: ${err.message}`);
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Update Reservation";
+        }
+      }
+    });
+  })();
+}
+
+// --- LOGIC FOR deleteReservation.html ---
+if (path.endsWith("deletereservation.html")) {
+  (async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      window.location.href = "login.html";
+      return;
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const reservationId = urlParams.get("id");
+    const loadingMessage = document.getElementById("loadingMessage");
+    const reservationContent = document.getElementById("reservationContent");
+    const errorEl = document.getElementById("errorMessage");
+    const successEl = document.getElementById("successMessage");
+    const deleteBtn = document.getElementById("deleteBtn");
+
+    if (!reservationId) {
+      if (loadingMessage) {
+        loadingMessage.textContent = "Error: No reservation ID provided.";
+      }
+      return;
+    }
+
+    const showError = (message) => {
+      if (errorEl) {
+        errorEl.textContent = message;
+        errorEl.style.display = "block";
+      }
+      if (successEl) successEl.style.display = "none";
+    };
+
+    const showSuccess = (message) => {
+      if (successEl) {
+        successEl.textContent = message;
+        successEl.style.display = "block";
+      }
+      if (errorEl) errorEl.style.display = "none";
+    };
+
+    const formatDateTime = (dateString) => {
+      if (!dateString) return "N/A";
+      const date = new Date(dateString);
+      return date.toLocaleString();
+    };
+
+    const renderReservationDetails = (reservation, tableInfo) => {
+      const detailsContainer = document.getElementById("reservationDetails");
+      if (!detailsContainer) return;
+
+      const tableName = tableInfo ? tableInfo.table_name : "N/A";
+      const roomName = tableInfo ? tableInfo.room_name : "N/A";
+
+      detailsContainer.innerHTML = `
+        <h2>Reservation Details</h2>
+        <div class="detail-row">
+          <span class="detail-label">Reservation ID:</span>
+          <span class="detail-value">${reservation.id}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Customer Name:</span>
+          <span class="detail-value">${reservation.customer_name || "N/A"}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Customer Email:</span>
+          <span class="detail-value">${reservation.customer_email || "N/A"}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Room:</span>
+          <span class="detail-value">${roomName}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Table:</span>
+          <span class="detail-value">${tableName}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Start Time:</span>
+          <span class="detail-value">${formatDateTime(reservation.start_time)}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Predicted End Time:</span>
+          <span class="detail-value">${formatDateTime(reservation.predicted_end_time)}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Actual End Time:</span>
+          <span class="detail-value">${formatDateTime(reservation.actual_end_time)}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Guest Count:</span>
+          <span class="detail-value">${reservation.guest_count || "N/A"}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Status:</span>
+          <span class="detail-value">${reservation.status || "N/A"}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Price Paid:</span>
+          <span class="detail-value">${reservation.price_paid != null ? `$${Number(reservation.price_paid).toFixed(2)}` : "N/A"}</span>
+        </div>
+      `;
+    };
+
+    const loadReservationDetails = async () => {
+      try {
+        const { data: reservation, error: reservationError } = await supabase
+        .from("reservations")
+        .select("*")
+          .eq("id", reservationId)
+          .single();
+
+        if (reservationError) {
+          console.error("Error loading reservation:", reservationError);
+          if (loadingMessage) {
+            loadingMessage.textContent = `Error loading reservation: ${reservationError.message}`;
+          }
+          return;
+        }
+        if (!reservation) {
+          if (loadingMessage) loadingMessage.textContent = "Reservation not found.";
+          return;
+        }
+
+        let tableInfo = null;
+        if (reservation.table_id) {
+          const { data: tableData, error: tableError } = await supabase
+            .from("restaurant_seating")
+            .select("table_name, room_name")
+            .eq("id", reservation.table_id)
+            .eq("restaurant_id", reservation.restaurant_id)
+            .limit(1);
+
+          if (tableError) {
+            const { data: fallbackData } = await supabase
+              .from("restaurant_seating")
+              .select("table_name, room_name")
+              .eq("id", reservation.table_id)
+              .limit(1);
+
+            if (fallbackData && fallbackData.length > 0) {
+              tableInfo = fallbackData[0];
+            }
+          } else if (tableData && tableData.length > 0) {
+            tableInfo = tableData[0];
+          }
+        }
+
+        renderReservationDetails(reservation, tableInfo);
+        if (loadingMessage) loadingMessage.classList.add("is-hidden");
+        if (reservationContent) reservationContent.classList.remove("is-hidden");
+      } catch (err) {
+        console.error("Unexpected error:", err);
+        if (loadingMessage) loadingMessage.textContent = `An unexpected error occurred: ${err.message}`;
+      }
+    };
+
+    const handleDelete = async () => {
+      const confirmed = confirm(
+        "Are you absolutely sure you want to delete this reservation? This action cannot be undone."
+      );
+      if (!confirmed) return;
+
+      if (deleteBtn) {
+        deleteBtn.disabled = true;
+        deleteBtn.textContent = "Deleting...";
+      }
+
+      try {
+        const { error } = await supabase
+          .from("reservations")
+          .delete()
+          .eq("id", reservationId);
+
+        if (error) {
+          console.error("Error deleting reservation:", error);
+          showError(`Failed to delete reservation: ${error.message}`);
+          if (deleteBtn) {
+            deleteBtn.disabled = false;
+            deleteBtn.textContent = "Delete Reservation";
+          }
+        } else {
+          showSuccess("Reservation successfully deleted!");
+          setTimeout(() => {
+            window.location.href = "bookings.html";
+          }, 2000);
+        }
+      } catch (err) {
+        console.error("Unexpected error deleting reservation:", err);
+        showError(`An unexpected error occurred: ${err.message}`);
+        if (deleteBtn) {
+          deleteBtn.disabled = false;
+          deleteBtn.textContent = "Delete Reservation";
+        }
+      }
+    };
+
+    if (deleteBtn) {
+      deleteBtn.addEventListener("click", handleDelete);
+    }
+    loadReservationDetails();
+  })();
+}
+
 // --- LOGIC FOR bookings.html (VIEW ALL RESERVATIONS) ---
 if (path.includes("bookings.html")) {
   (async () => {
@@ -769,7 +1350,7 @@ if (path.includes("bookings.html")) {
         <td>
           <button onclick="window.location.href='${updateUrl}'" class="btn-seat">Update</button>
           <button onclick="window.location.href='deleteReservation.html?id=${r.id}'" class="btn-cancel">Delete</button>
-        </td>
+  </td>
       `;
 
       if (tbody) tbody.appendChild(row);
