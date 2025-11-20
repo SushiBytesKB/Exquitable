@@ -3,11 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>New Reservation</title>
+    <title>Update Seating</title>
     <link rel="stylesheet" href="./CSS/booking.css" />
     <style>
       .reservation-form {
-        max-width: 600px;
+        max-width: 640px;
         margin: 0 auto;
       }
 
@@ -103,70 +103,62 @@
   </head>
   <body>
     <div class="bookings_container">
-      <a href="index.html" class="back-link">← Home page</a>
-      <h1>Create New Reservation</h1>
+      <a href="index.html" class="back-link">← Back to Dashboard</a>
+      <h1>Update Seating</h1>
+      <p id="updateRestaurantInfo" class="loading">Loading your seating…</p>
       
       <div class="reservation-form">
-        <form id="newReservationForm">
+        <form id="updateSeatingForm">
           <div class="form-group">
-            <label for="table_id">Table *</label>
-            <select id="table_id" name="table_id" required disabled>
-              <option value="">Loading tables...</option>
+            <label for="seating_id">Select Table *</label>
+            <select id="seating_id" name="seating_id" required disabled>
+              <option value="">Loading seating...</option>
             </select>
-            <small id="tableLoading" class="loading" style="display: none;">Loading tables...</small>
-            <small>Select a table for this reservation</small>
+            <small>Choose the table you want to update</small>
           </div>
 
           <div class="form-group">
-            <label for="customer_name">Customer Name *</label>
+            <label for="update_table_name">Table Name *</label>
             <input
               type="text"
-              id="customer_name"
-              name="customer_name"
+              id="update_table_name"
+              name="table_name"
               required
-              placeholder="Enter customer name"
+              placeholder="e.g. Table A1"
+              disabled
             />
           </div>
 
           <div class="form-group">
-            <label for="customer_email">Customer Email *</label>
+            <label for="update_room_name">Room/Zone *</label>
             <input
-              type="email"
-              id="customer_email"
-              name="customer_email"
+              type="text"
+              id="update_room_name"
+              name="room_name"
               required
-              placeholder="Enter customer email"
+              placeholder="e.g. Main Dining"
+              disabled
             />
           </div>
 
           <div class="form-group">
-            <label for="guest_count">Number of Guests *</label>
+            <label for="update_capacity">Capacity *</label>
             <input
               type="number"
-              id="guest_count"
-              name="guest_count"
+              id="update_capacity"
+              name="capacity"
               required
               min="1"
-              placeholder="Enter number of guests"
+              placeholder="e.g. 4"
+              disabled
             />
           </div>
 
-          <div class="form-group">
-            <label for="start_time">Start Time *</label>
-            <input
-              type="datetime-local"
-              id="start_time"
-              name="start_time"
-              required
-            />
-            <small>Date and time for the reservation</small>
-          </div>
+          <div class="error-message" id="updateSeatingError"></div>
+          <div class="success-message" id="updateSeatingSuccess"></div>
 
-          <div class="error-message" id="errorMessage"></div>
-          <div class="success-message" id="successMessage"></div>
-
-          <button type="submit" class="btn-submit" id="submitBtn">
-            Create Reservation
+          <button type="submit" class="btn-submit" id="updateSeatingSubmitBtn" disabled>
+            Save Changes
           </button>
         </form>
       </div>

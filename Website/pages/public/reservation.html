@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>New Reservation</title>
-    <link rel="stylesheet" href="./CSS/booking.css" />
+    <link rel="stylesheet" href="CSS/booking.css" />
     <style>
       .reservation-form {
         max-width: 600px;
@@ -103,15 +103,25 @@
   </head>
   <body>
     <div class="bookings_container">
-      <a href="index.html" class="back-link">← Home page</a>
+      <a href="bookings.html" class="back-link" id="backLink" style="display: none;">← Back to Bookings</a>
       <h1>Create New Reservation</h1>
       
       <div class="reservation-form">
         <form id="newReservationForm">
+          <!-- Restaurant selection (only for public users) -->
+          <div class="form-group" id="restaurantGroup" style="display: none;">
+            <label for="restaurant_id">Restaurant *</label>
+            <select id="restaurant_id" name="restaurant_id">
+              <option value="">Select a restaurant</option>
+            </select>
+            <small id="restaurantLoading" class="loading" style="display: none;">Loading restaurants...</small>
+            <small>Select a restaurant to see available tables</small>
+          </div>
+
           <div class="form-group">
             <label for="table_id">Table *</label>
             <select id="table_id" name="table_id" required disabled>
-              <option value="">Loading tables...</option>
+              <option value="">Select a restaurant first</option>
             </select>
             <small id="tableLoading" class="loading" style="display: none;">Loading tables...</small>
             <small>Select a table for this reservation</small>
@@ -172,6 +182,6 @@
       </div>
     </div>
 
-    <script type="module" src="./JS/app.js"></script>
+    <script type="module" src="JS/app.js"></script>
   </body>
 </html>
