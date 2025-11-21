@@ -1,11 +1,9 @@
 # Put all of the libraries required by user here
-flask
-flask-cors
 python-dotenv
-supabase
-pandas
-numpy
-tensorflow
 scikit-learn
+tensorflow
+numpy
 joblib
-# so many more 
+supabase
+flask
+Flask-Cors
