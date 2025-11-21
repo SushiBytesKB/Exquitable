@@ -11,8 +11,6 @@ header
   background-position: left;
   background-repeat: no-repeat;
   background-color: #F7F3E8; 
-
-  /* border-bottom: 3px solid black;  */
 }
 
 body
@@ -316,5 +314,150 @@ a {
 }
 
 
+.btnAddBooking 
+{
+  margin-top: 2rem;
+  color: #F7F3E8; 
+  background-color: #BF360C;
+  font-size: 2.5rem;
+  padding: 1.5rem;
+  border: none;
+}
 
+.btnAddBooking:hover {
+  background-color: #e23d0a;;
+  cursor: pointer;
+}
 
+.popupOverlay
+{
+  display: none;
+  position: fixed;
+  height: 50rem;
+  width: 50rem;
+  z-index: 1;
+  margin: auto;
+  margin-top: 5rem;
+  padding: 2rem;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  
+  
+  background-color: #EFE5D9;
+  border: 2px solid black;
+  border-radius: 3px;
+  box-shadow: 15px 15px 0px rgba(0, 0, 0, 0.8);
+  z-index: 10;
+
+}
+
+.popupContent
+{
+  color: #4E342E;
+  font-size: 1.8rem;
+}
+
+.popupContent form
+{
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  row-gap: 1.5rem;
+  column-gap: 2rem;
+  align-items: center;
+}
+
+.popupContent input
+{
+  width: 100%;
+  height: 3.5rem;
+  padding: 0.5rem;
+  font-size: 1.6rem;
+  border: 1px solid #4E342E;
+  background-color: white;
+  box-sizing: border-box;
+}
+
+.newReservation
+{
+  text-align: center;
+  grid-column: 1 / -1;
+  margin-bottom: 3rem;
+  font-size: 3rem;
+  color: #4E342E;
+}
+
+.formButtons
+{
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+input.btnSubmit
+{
+  margin-top: 2rem;
+  color: #F7F3E8; 
+  background-color: #BF360C;
+  font-size: 1.8rem;
+  padding: 1rem 2rem;
+  border: none;
+  margin: 0;
+}
+
+input.btnSubmit:hover {
+  background-color: #e23d0a;
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+  cursor: pointer;
+}
+
+.btnBookingDone
+{
+  margin-top: 1.2rem;
+  color: #5e3830;
+  background-color:transparent;
+  font-size: 1.8rem;
+  padding: 1rem 2rem;
+  border: none;
+  margin: 0;
+}
+
+.btnBookingDone:hover {
+  background-color: #5e3830;
+  color: #F7F3E8;
+  cursor: pointer;
+}
+
+.seatingChart
+{
+  margin: 4rem 3rem;
+
+  height: auto;
+  width: 95%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 150px;
+  text-align: center;
+  position: relative;
+  padding-bottom: 3rem;
+  padding-left: 1.2rem;
+
+  background-image: url("doodleBackgroundEdited.png");
+  background-size: auto;
+  background-repeat: repeat;
+  border: 2px solid black;
+  border-radius: 3px;
+
+  box-shadow: 8px 8px 20px rgba(0, 0, 0, 0.2);
+  
+  z-index: 5;
+
+}
+
+.textSeatingChart
+{
+  position: relative;
+  z-index: 3;
+}

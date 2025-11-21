@@ -22,6 +22,7 @@
           <div class="searchContainer">
             <input class="searchBar" type="search" id="search-input" name="q" placeholder="Search...">
             <button type="submit" class="btnGo">Go</button>
+            
           </div>
 
           <div class="filterContainer">
@@ -38,8 +39,36 @@
             <label for="showOnlyToday">Show only today</label>
             
           </div> 
-
           </form>
+          <button onclick="openPopup()" class="btnAddBooking">Add Booking</button>
+          <div id="popup" class="popupOverlay">
+            <div class="popupContent">
+              <h2 class="newReservation">New Reservation</h2>
+              <form action="">
+                <label for="customerNameBooking">Name: </label>
+                <input class="customerNameBooking" type="text" placeholder="Name" name="customerNameBooking">
+
+                <label for="customerEmailBooking">E-Mail Address: </label>
+                <input class="customerEmailBooking" name="customerEmailBooking" type="email" placeholder="E-Mail Address">
+
+                <label for="customerNumberBooking">Guest Count: </label>
+                <input class="customerNumberBooking" name="customerNumberBooking" type="number" placeholder="Guest Count">
+
+                <label for="customerDateBooking">Date: </label>
+                <input name="customerDateBooking" class="customerDateBooking" type="date" placeholder="Reservation Date">
+
+                <label for="customerTimeBooking">Time: </label>
+                <input class="customerTimeBooking" name="customerTimeBooking" type="time" placeholder="Reservation Time">
+
+                <div class="formButtons">
+                  <input class="btnSubmit" type="submit">
+                  <button type="button" class="btnBookingDone" onclick="closePopup()">Done</button>
+                </div>
+              </form>
+            </div>
+          </div>
+          
+
         </div>
         <div class="reservations" id="reservations"></div>
       </div>
