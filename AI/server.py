@@ -40,7 +40,7 @@ def decide_booking():
         if not email or not guests:
             return jsonify({"error": "Missing 'customer_email' or 'guest_count'"}), 400
 
-        print(f"\n🔹 Request: {email} for {guests} guests.")
+        print(f"\nRequest: {email} for {guests} guests.")
 
         # Build Context
         context = preprocessor.build_simulation_context(data, agent.duration_model)

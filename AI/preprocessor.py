@@ -45,7 +45,7 @@ class RestaurantPreprocessor:
         total_capacity = sum(t['capacity'] for t in seating)
         if total_capacity == 0: return 0.0
 
-        dt_target = datetime.fromisoformat(str(target_time_str).replace('Z', ''))
+        dt_target = datetime.fromisoformat(str(target_time_str).replace('Z', '')).replace(tzinfo=None)
         
         # Filter for bookings that overlap with the target time on this day
         start_of_day = dt_target.replace(hour=0, minute=0, second=0).isoformat()
@@ -63,11 +63,11 @@ class RestaurantPreprocessor:
         occupied_seats = 0
         for b in response.data:
             # ISO strings for timestamps
-            b_start = datetime.fromisoformat(b['start_time'].replace('Z', ''))
+            b_start = datetime.fromisoformat(b['start_time'].replace('Z', '')).replace(tzinfo=None)
             
             # Use the stored predicted_end_time IF**** available << (or just do 90 mins lmao)
             if b.get('predicted_end_time'):
-                b_end = datetime.fromisoformat(b['predicted_end_time'].replace('Z', ''))
+                b_end = datetime.fromisoformat(b['predicted_end_time'].replace('Z', '')).replace(tzinfo=None)
             else:
                 b_end = b_start + timedelta(minutes=90)
 
@@ -86,10 +86,10 @@ class RestaurantPreprocessor:
             if str(b.get('table_id')) != str(table_id): 
                 continue 
                 
-            b_start = datetime.fromisoformat(b['start_time'].replace('Z', ''))
+            b_start = datetime.fromisoformat(b['start_time'].replace('Z', '')).replace(tzinfo=None)
             
             if b.get('predicted_end_time'):
-                b_end = datetime.fromisoformat(b['predicted_end_time'].replace('Z', ''))
+                b_end = datetime.fromisoformat(b['predicted_end_time'].replace('Z', '')).replace(tzinfo=None)
             else:
                 b_end = b_start + timedelta(minutes=90)
             
@@ -105,7 +105,7 @@ class RestaurantPreprocessor:
         start_time_str = request_data.get('start_time')
         is_weekend = 1 if request_data.get('is_weekend') else 0
         
-        res_dt = datetime.fromisoformat(start_time_str.replace('Z', ''))
+        res_dt = datetime.fromisoformat(start_time_str.replace('Z', '')).replace(tzinfo=None)
         time_of_day = res_dt.hour + (res_dt.minute / 60.0)
         
         # DB Fetches
