@@ -23,11 +23,11 @@ agent = ProfitAgent(
     rl_model_path='Models/decisionDQN.h5'
 )
 
-print("ExquiTable AI Server is running (Strict Schema Mode).")
+print("ExquiTable AI Server is running.")
 
 @app.route('/health', methods=['GET'])
 def health_check():
-    return jsonify({"status": "online", "schema": "v2_strict"}), 200
+    return jsonify({"status": "online"}), 200
 
 @app.route('/decide_booking', methods=['POST'])
 def decide_booking():
@@ -36,11 +36,12 @@ def decide_booking():
         
         email = data.get('customer_email')
         guests = data.get('guest_count')
+        rest_id = data.get('restaurant_id')
         
         if not email or not guests:
-            return jsonify({"error": "Missing 'customer_email' or 'guest_count'"}), 400
+            return jsonify({"error": "Missing data points'"}), 400
 
-        print(f"\nRequest: {email} for {guests} guests.")
+        print(f"\nRequest: {email} for {guests} guests at {rest_id} restaurant ID.")
 
         # Build Context
         context = preprocessor.build_simulation_context(data, agent.duration_model)

@@ -16,17 +16,23 @@ class RestaurantPreprocessor:
             print(f"Error loading scalers: {e}")
             raise e
 
-    def fetch_restaurant_seating(self):
-        response = self.supabase.table('restaurant_seating').select("*").execute()
+    def fetch_restaurant_seating(self, restaurant_id):
+        if not restaurant_id: return []
+        
+        response = self.supabase.table('restaurant_seating')\
+            .select("*")\
+            .eq('restaurant_id', restaurant_id)\
+            .execute()
         return response.data
 
-    def fetch_customer_history(self, email):
-        if not email: return 0, 0.0
+    def fetch_customer_history(self, email, restaurant_id):
+        if not email or not restaurant_id: return 0, 0.0
         
         # Schema: reservations(price_paid, customer_email, status='completed')
         response = self.supabase.table('reservations')\
             .select("price_paid")\
             .eq("customer_email", email)\
+            .eq("restaurant_id", restaurant_id)\
             .eq("status", "completed")\
             .execute()
             
@@ -34,13 +40,27 @@ class RestaurantPreprocessor:
         if not history: return 0, 0.0
         
         count = len(history)
-        # Filter out None/Null prices
         total_spend = sum(float(h['price_paid']) for h in history if h['price_paid'] is not None)
         
         return count, (total_spend / count if count > 0 else 0.0)
 
-    def calculate_current_occupancy(self, target_time_str):
-        seating = self.fetch_restaurant_seating()
+    def fetch_operating_hours(self, restaurant_id):
+        if not restaurant_id:
+            return None 
+            
+        response = self.supabase.table('restaurants')\
+            .select("operating_hours")\
+            .eq("id", restaurant_id)\
+            .maybe_single()\
+            .execute()
+            
+        if response.data:
+            return response.data['operating_hours']
+        return None
+
+    def calculate_current_occupancy(self, target_time_str, restaurant_id):
+        # Fetch seating for THIS restaurant
+        seating = self.fetch_restaurant_seating(restaurant_id)
         total_capacity = sum(t['capacity'] for t in seating)
         if total_capacity == 0: return 0.0
 
@@ -50,9 +70,10 @@ class RestaurantPreprocessor:
         start_of_day = dt_target.replace(hour=0, minute=0, second=0).isoformat()
         end_of_day = dt_target.replace(hour=23, minute=59, second=59).isoformat()
 
-        # Schema: status is 'confirmed' (or 'completed'). 'denied' means no seat.
+        # Fetch reservations for THIS restaurant
         response = self.supabase.table('reservations')\
             .select("start_time, predicted_end_time, guest_count")\
+            .eq('restaurant_id', restaurant_id)\
             .gte("start_time", start_of_day)\
             .lte("start_time", end_of_day)\
             .neq("status", "denied")\
@@ -94,8 +115,35 @@ class RestaurantPreprocessor:
             
             # Overlap when (StartA < EndB) and (EndA > StartB)
             if req_start < b_end and req_end > b_start:
-                return False # Conflict found
+                return False
         return True
+
+    def is_restaurant_open(self, start_dt, duration_minutes, operating_hours):
+        if not operating_hours:
+            return True 
+
+        day_name = start_dt.strftime("%A").lower()
+        
+        if day_name not in operating_hours or not operating_hours[day_name]:
+            return False 
+
+        hours = operating_hours[day_name]
+
+        try:
+            fmt = "%H:%M"
+            open_time = datetime.strptime(hours["open"], fmt).time()
+            close_time = datetime.strptime(hours["close"], fmt).time()
+            
+            booking_start = start_dt.time()
+            booking_end = (start_dt + timedelta(minutes=duration_minutes)).time()
+
+            if booking_start >= open_time and booking_end <= close_time:
+                return True
+            return False
+            
+        except Exception as e:
+            print(f"Error parsing hours: {e}")
+            return True
 
     def build_simulation_context(self, request_data, duration_model):
         # Unpack Request
@@ -103,46 +151,55 @@ class RestaurantPreprocessor:
         guests = int(request_data.get('guest_count'))
         start_time_str = request_data.get('start_time')
         is_weekend = 1 if request_data.get('is_weekend') else 0
+        restaurant_id = request_data.get('restaurant_id')
         
         res_dt = datetime.fromisoformat(start_time_str.replace('Z', '')).replace(tzinfo=None)
         time_of_day = res_dt.hour + (res_dt.minute / 60.0)
         
-        # DB Fetches
-        seating = self.fetch_restaurant_seating()
-        visit_count, avg_spend = self.fetch_customer_history(email)
-        occupancy = self.calculate_current_occupancy(start_time_str)
+        # Fetch DB
+        op_hours = self.fetch_operating_hours(restaurant_id)
+        visit_count, avg_spend = self.fetch_customer_history(email, restaurant_id)
+        occupancy = self.calculate_current_occupancy(start_time_str, restaurant_id)
+
+        # Predict Duration
+        duration_features = np.array([[is_weekend, time_of_day, occupancy, guests, visit_count, avg_spend]])
         
-        # Fetch existing bookings for conflict checking
+        if self.duration_scaler:
+            scaled_dur_inputs = self.duration_scaler.transform(duration_features)
+            pred_minutes = float(duration_model.predict(scaled_dur_inputs, verbose=0)[0][0])
+        else:
+            pred_minutes = 90.0
+        pred_minutes = max(45, pred_minutes)
+
+        # Check hours
+        if not self.is_restaurant_open(res_dt, pred_minutes, op_hours):
+             return {
+                "state_features": duration_features,
+                "predicted_duration": round(pred_minutes),
+                "valid_actions": [], # Empty = Denied
+                "rl_scaler": self.rl_scaler
+            }
+        
+        # Vlid actions
+        seating = self.fetch_restaurant_seating(restaurant_id)
+        
+        # Fetch Bookings
         start_day = res_dt.replace(hour=0, minute=0).isoformat()
         end_day = res_dt.replace(hour=23, minute=59).isoformat()
         
         bookings_resp = self.supabase.table('reservations')\
             .select("table_id, start_time, predicted_end_time")\
+            .eq('restaurant_id', restaurant_id)\
             .gte("start_time", start_day)\
             .lte("start_time", end_day)\
             .neq("status", "denied")\
             .neq("status", "cancelled")\
             .execute()
         existing_bookings = bookings_resp.data
-
-        # Predict Duration (Model 1)
-        # Input Order: [isWeekend, timeOfDay, occupancy, guests, visitCount, avgSpend]
-        duration_features = np.array([[is_weekend, time_of_day, occupancy, guests, visit_count, avg_spend]])
         
-        # Scale & Predict
-        if self.duration_scaler:
-            scaled_dur_inputs = self.duration_scaler.transform(duration_features)
-            pred_minutes = float(duration_model.predict(scaled_dur_inputs, verbose=0)[0][0])
-        else:
-            # if scaler missing (just in case)
-            pred_minutes = 90.0
-            
-        pred_minutes = max(45, pred_minutes)
-        
-        # 3. Find Valid Actions
         valid_actions = []
         
-        # Deny
+        # Deny Option
         valid_actions.append({
             "action": "denied",
             "table_id": None,
