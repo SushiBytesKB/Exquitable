@@ -2,7 +2,6 @@ import joblib
 import numpy as np
 from datetime import datetime, timedelta
 from supabase import create_client, Client
-import os
 
 class RestaurantPreprocessor:
     def __init__(self, supabase_url: str, supabase_key: str):
