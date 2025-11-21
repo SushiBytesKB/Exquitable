@@ -1,9 +1,11 @@
 # Put all of the libraries required by user here
-fastapi
-uvicorn[standard]
-supabase
+flask
+flask-cors
 python-dotenv
-torch
-torchvision
-numpy
+supabase
 pandas
+numpy
+tensorflow
+scikit-learn
+joblib
+# so many more 
