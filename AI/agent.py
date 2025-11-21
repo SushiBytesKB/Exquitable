@@ -6,8 +6,8 @@ class ProfitAgent:
         print("Loading AI Models...")
         try:
             # Load the .h5 files downloaded from Colab
-            self.duration_model = tf.keras.models.load_model(duration_model_path)
-            self.rl_model = tf.keras.models.load_model(rl_model_path)
+            self.duration_model = tf.keras.models.load_model(duration_model_path, compile=False)
+            self.rl_model = tf.keras.models.load_model(rl_model_path, compile=False)
             print("Models loaded successfully.")
         except Exception as e:
             print(f"Error loading models: {e}")
