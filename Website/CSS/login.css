@@ -39,4 +39,23 @@ button{
 #errorMessage {
   color: red;
   margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 0px;
+  min-height: 20px;
+}
+
+a {
+  color: #667eea;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.link-text {
+  margin-top: 15px;
+  text-align: center;
 }

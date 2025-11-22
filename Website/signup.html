@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="./CSS/signup.css" />
+  </head>
+  <body>
+    <div class="signup_container">
+      <h1>Sign Up</h1>
+      <form id="signupForm">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required />
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required minlength="6" />
+
+        <label for="confirmPassword">Confirm Password:</label>
+        <input type="password" id="confirmPassword" name="confirmPassword" required minlength="6" />
+
+        <label for="restaurantName">Restaurant Name:</label>
+        <input type="text" id="restaurantName" name="restaurantName" required placeholder="e.g. Sushi Bytes" />
+
+        <div class="operating-hours-section">
+          <h3>Operating Hours</h3>
+          <small>Set hours for each day or mark as closed</small>
+          
+          <div class="day-hours" id="monday-hours">
+            <div class="day-header">
+              <label class="day-label">Monday:</label>
+              <label class="closed-checkbox">
+                <input type="checkbox" id="monday-closed" name="monday-closed" />
+                Closed
+              </label>
+            </div>
+            <div class="time-inputs">
+              <input type="time" id="monday-open" name="monday-open" />
+              <span>to</span>
+              <input type="time" id="monday-close" name="monday-close" />
+            </div>
+          </div>
+
+          <div class="day-hours" id="tuesday-hours">
+            <div class="day-header">
+              <label class="day-label">Tuesday:</label>
+              <label class="closed-checkbox">
+                <input type="checkbox" id="tuesday-closed" name="tuesday-closed" />
+                Closed
+              </label>
+            </div>
+            <div class="time-inputs">
+              <input type="time" id="tuesday-open" name="tuesday-open" />
+              <span>to</span>
+              <input type="time" id="tuesday-close" name="tuesday-close" />
+            </div>
+          </div>
+
+          <div class="day-hours" id="wednesday-hours">
+            <div class="day-header">
+              <label class="day-label">Wednesday:</label>
+              <label class="closed-checkbox">
+                <input type="checkbox" id="wednesday-closed" name="wednesday-closed" />
+                Closed
+              </label>
+            </div>
+            <div class="time-inputs">
+              <input type="time" id="wednesday-open" name="wednesday-open" />
+              <span>to</span>
+              <input type="time" id="wednesday-close" name="wednesday-close" />
+            </div>
+          </div>
+
+          <div class="day-hours" id="thursday-hours">
+            <div class="day-header">
+              <label class="day-label">Thursday:</label>
+              <label class="closed-checkbox">
+                <input type="checkbox" id="thursday-closed" name="thursday-closed" />
+                Closed
+              </label>
+            </div>
+            <div class="time-inputs">
+              <input type="time" id="thursday-open" name="thursday-open" />
+              <span>to</span>
+              <input type="time" id="thursday-close" name="thursday-close" />
+            </div>
+          </div>
+
+          <div class="day-hours" id="friday-hours">
+            <div class="day-header">
+              <label class="day-label">Friday:</label>
+              <label class="closed-checkbox">
+                <input type="checkbox" id="friday-closed" name="friday-closed" />
+                Closed
+              </label>
+            </div>
+            <div class="time-inputs">
+              <input type="time" id="friday-open" name="friday-open" />
+              <span>to</span>
+              <input type="time" id="friday-close" name="friday-close" />
+            </div>
+          </div>
+
+          <div class="day-hours" id="saturday-hours">
+            <div class="day-header">
+              <label class="day-label">Saturday:</label>
+              <label class="closed-checkbox">
+                <input type="checkbox" id="saturday-closed" name="saturday-closed" />
+                Closed
+              </label>
+            </div>
+            <div class="time-inputs">
+              <input type="time" id="saturday-open" name="saturday-open" />
+              <span>to</span>
+              <input type="time" id="saturday-close" name="saturday-close" />
+            </div>
+          </div>
+
+          <div class="day-hours" id="sunday-hours">
+            <div class="day-header">
+              <label class="day-label">Sunday:</label>
+              <label class="closed-checkbox">
+                <input type="checkbox" id="sunday-closed" name="sunday-closed" />
+                Closed
+              </label>
+            </div>
+            <div class="time-inputs">
+              <input type="time" id="sunday-open" name="sunday-open" />
+              <span>to</span>
+              <input type="time" id="sunday-close" name="sunday-close" />
+            </div>
+          </div>
+        </div>
+
+        <button type="submit">Sign Up</button>
+        <p id="message"></p>
+        <p class="link-text">
+          Already have an account? <a href="login.html">Login</a>
+        </p>
+      </form>
+    </div>
+
+    <script type="module" src="./JS/signup.js"></script>
+  </body>
+</html>
+

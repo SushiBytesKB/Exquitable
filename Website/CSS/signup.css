@@ -1,0 +1,146 @@
+.signup_container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #f5f5f5;  
+}
+
+#signupForm{
+    display: flex;
+    flex-direction: column;
+    width: 450px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    gap: 15px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.operating-hours-section {
+    margin: 15px 0;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    border: 1px solid #e0e0e0;
+}
+
+.operating-hours-section h3 {
+    margin: 0 0 5px 0;
+    font-size: 18px;
+    color: #333;
+}
+
+.operating-hours-section small {
+    color: #666;
+    font-size: 12px;
+}
+
+.day-hours {
+    margin: 12px 0;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+.day-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.day-label {
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+.closed-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+    color: #666;
+    cursor: pointer;
+    margin: 0;
+}
+
+.closed-checkbox input[type="checkbox"] {
+    margin: 0;
+    cursor: pointer;
+}
+
+.time-inputs {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.time-inputs input[type="time"] {
+    flex: 1;
+    margin: 0;
+}
+
+.time-inputs span {
+    color: #666;
+    font-size: 14px;
+}
+
+.time-inputs input[type="time"]:disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+}
+
+input{
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 16px;
+}
+
+button{
+    padding: 10px;
+    background-color: black;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#message {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  margin-top: 0px;
+  min-height: 20px;
+}
+
+#message.error {
+  color: red;
+}
+
+#message.success {
+  color: green;
+}
+
+a {
+  color: #667eea;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.link-text {
+  margin-top: 15px;
+  text-align: center;
+}
+
