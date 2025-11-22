@@ -1,36 +1,445 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bookings</title>
-    <link rel="stylesheet" href="./CSS/booking.css" />
-  </head>
-  <body>
-    <div class="bookings_container">
-      <a href="index.html" class="back-link">← Home page</a>
-      <h1>Bookings</h1>
-      <div id="bookingsTableContainer">
-        <table id="bookingsTable">
-          <thead>
-            <tr>
-              <th>Customer Name</th>
-              <th>Customer Email</th>
-              <th>Room</th>
-              <th>Table</th>
-              <th>Start Time</th>
-              <th>Predicted End Time</th>
-              <th>Guests</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bookings Management</title>
+  <link rel="stylesheet" href="./CSS/booking.css" />
+  <link rel="stylesheet" href="./CSS/forms.css" />
+  <style>
+    /* Modal Overlay */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(5px);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .modal-overlay.active {
+      display: flex;
+    }
+    
+    /* Modal Card */
+    .modal-card {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slideDown 0.3s ease;
+    }
+    
+    @keyframes slideDown {
+      from {
+        transform: translateY(-50px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 15px;
+    }
+    
+    .modal-header h2 {
+      margin: 0;
+      color: #333;
+    }
+    
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 28px;
+      cursor: pointer;
+      color: #999;
+      line-height: 1;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+    }
+    
+    .modal-close:hover {
+      color: #333;
+    }
+    
+    /* Delete Warning Modal */
+    .warning-icon {
+      font-size: 60px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .warning-text {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #555;
+    }
+    
+    .warning-text h3 {
+      color: #d9534f;
+      margin-bottom: 10px;
+    }
+    
+    .reservation-info {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    
+    .reservation-info p {
+      margin: 8px 0;
+      color: #333;
+    }
+    
+    .reservation-info strong {
+      color: #555;
+    }
+    .loading-bar {
+      width: 100%;
+      height: 4px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 12px;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .loading-bar.active {
+      opacity: 1;
+    }
+
+    .loading-bar-fill {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, #007bff, #00c6ff);
+      animation: loading-bar-progress 1.2s linear infinite;
+      transform-origin: left;
+    }
+
+    @keyframes loading-bar-progress {
+      0% {
+        transform: translateX(-100%);
+      }
+      100% {
+        transform: translateX(100%);
+      }
+    }
+    
+    /* Button Styles */
+    .btn-new-reservation {
+      background: #28a745;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-bottom: 20px;
+      transition: background 0.3s;
+    }
+    
+    .btn-new-reservation:hover {
+      background: #218838;
+    }
+    
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+    
+    .btn-confirm-delete {
+      background: #d9534f;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    
+    .btn-confirm-delete:hover {
+      background: #c9302c;
+    }
+    
+    .btn-modal-cancel {
+      background: #6c757d;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    
+    .btn-modal-cancel:hover {
+      background: #5a6268;
+    }
+  </style>
+</head>
+<body>
+  <div class="bookings_container">
+    <a href="index.html" class="back-link">← Home page</a>
+    <h1>Bookings Management</h1>
+    
+    <button class="btn-new-reservation" id="btnNewReservation">
+      + New Reservation
+    </button>
+
+    <!-- View Bookings Table -->
+    <div id="bookingsTableContainer">
+      <table id="bookingsTable">
+        <thead>
+          <tr>
+            <th>Customer Name</th>
+            <th>Customer Email</th>
+            <th>Room</th>
+            <th>Table</th>
+            <th>Start Time</th>
+            <th>Predicted End Time</th>
+            <th>Guests</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- New Reservation Modal -->
+  <div class="modal-overlay" id="newReservationModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>Create New Reservation</h2>
+        <button class="modal-close" onclick="closeModal('newReservationModal')">&times;</button>
+      </div>
+      
+      <form id="newReservationForm">
+        <div class="form-group">
+          <label for="table_id">Table *</label>
+          <select id="table_id" name="table_id" required disabled>
+            <option value="">Loading tables...</option>
+          </select>
+          <small id="tableLoading" class="loading is-hidden">Loading tables...</small>
+          <small>Select a table for this reservation</small>
+        </div>
+
+        <div class="form-group">
+          <label for="customer_name">Customer Name *</label>
+          <input
+            type="text"
+            id="customer_name"
+            name="customer_name"
+            required
+            placeholder="Enter customer name"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="customer_email">Customer Email *</label>
+          <input
+            type="email"
+            id="customer_email"
+            name="customer_email"
+            required
+            placeholder="Enter customer email"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="guest_count">Number of Guests *</label>
+          <input
+            type="number"
+            id="guest_count"
+            name="guest_count"
+            required
+            min="1"
+            placeholder="Enter number of guests"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="start_time">Start Time *</label>
+          <input
+            type="datetime-local"
+            id="start_time"
+            name="start_time"
+            required
+          />
+          <small>Date and time for the reservation</small>
+        </div>
+
+        <div class="loading-bar" id="reservationLoadingBar">
+          <div class="loading-bar-fill"></div>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
+
+        <div class="modal-buttons">
+          <button type="button" class="btn-modal-cancel" onclick="closeModal('newReservationModal')">
+            Cancel
+          </button>
+          <button type="submit" class="btn-submit" id="submitBtn">
+            Create Reservation
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Update Reservation Modal -->
+  <div class="modal-overlay" id="updateReservationModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>Update Reservation</h2>
+        <button class="modal-close" onclick="closeModal('updateReservationModal')">&times;</button>
+      </div>
+      
+      <form id="updateReservationForm">
+        <div class="form-group">
+          <label for="reservationId">Reservation ID *</label>
+          <input
+            type="text"
+            id="reservationId"
+            name="reservationId"
+            required
+            readonly
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="newStatus">Status *</label>
+          <select id="newStatus" name="newStatus" required>
+            <option value="">Select a status</option>
+            <option value="confirmed">confirmed</option>
+            <option value="denied">denied</option>
+            <option value="completed">completed</option>
+          </select>
+          <small>New status for the reservation</small>
+        </div>
+
+        <div class="form-group">
+          <label for="price">Price</label>
+          <input
+            type="number"
+            id="price"
+            name="price"
+            step="0.01"
+            min="0"
+            placeholder="0.00"
+          />
+          <small>Final price for the reservation (optional)</small>
+        </div>
+
+        <div class="form-group">
+          <label for="actual_end_time">Actual End Time</label>
+          <input
+            type="datetime-local"
+            id="actual_end_time"
+            name="actual_end_time"
+          />
+          <small>When the reservation actually ended (optional)</small>
+        </div>
+
+        <div class="error-message" id="updateErrorMessage"></div>
+        <div class="success-message" id="updateSuccessMessage"></div>
+
+        <div class="modal-buttons">
+          <button type="button" class="btn-modal-cancel" onclick="closeModal('updateReservationModal')">
+            Cancel
+          </button>
+          <button type="submit" class="btn-submit" id="updateSubmitBtn">
+            Update Reservation
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div class="modal-overlay" id="deleteReservationModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>Delete Reservation</h2>
+        <button class="modal-close" onclick="closeModal('deleteReservationModal')">&times;</button>
+      </div>
+      
+      <div class="warning-icon">⚠️</div>
+      <div class="warning-text">
+        <h3>Warning: This action cannot be undone!</h3>
+        <p>Are you sure you want to permanently delete this reservation?</p>
+      </div>
+
+      <div class="reservation-info" id="deleteReservationInfo">
+        <!-- Reservation details will be populated here -->
+      </div>
+
+      <div class="error-message" id="deleteErrorMessage"></div>
+      <div class="success-message" id="deleteSuccessMessage"></div>
+
+      <div class="modal-buttons">
+        <button type="button" class="btn-modal-cancel" onclick="closeModal('deleteReservationModal')">
+          Cancel
+        </button>
+        <button type="button" class="btn-confirm-delete" id="confirmDeleteBtn">
+          Delete Reservation
+        </button>
       </div>
     </div>
+  </div>
 
-
-<script type="module" src="./JS/app.js"></script>
-  </body>
+  <script type="module" src="./JS/app.js"></script>
+<script type="module" src="./JS/bookings.js"></script>
+  <script>
+    // Modal control functions
+    function openModal(modalId) {
+      document.getElementById(modalId).classList.add('active');
+    }
+    
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+    }
+    
+    // Make functions globally accessible
+    window.openModal = openModal;
+    window.closeModal = closeModal;
+    
+    // Close modal when clicking outside
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+          closeModal(overlay.id);
+        }
+      });
+    });
+    
+    // New Reservation button handler
+    document.getElementById('btnNewReservation').addEventListener('click', () => {
+      openModal('newReservationModal');
+    });
+  </script>
+</body>
 </html>
