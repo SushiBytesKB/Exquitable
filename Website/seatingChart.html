@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="./CSS/style.css" />
     <link rel="stylesheet" href="./CSS/booking.css" />
     <link rel="stylesheet" href="./CSS/forms.css" />
+
     <style>
       .seating-actions {
         display: flex;
@@ -69,16 +70,16 @@
       
       <div class="tab-buttons">
         <button class="tab-btn active" data-view="view">View Chart</button>
-        <button class="tab-btn" data-view="setup">➕ Setup Seating</button>
-        <a href="updateSetupSeating.html" class="tab-btn" style="text-decoration: none; display: inline-flex; align-items: center;">✏️ Update Seating</a>
+        <button class="tab-btn" data-view="setup">Setup Seating</button>
+        <button class="tab-btn" data-view="update">Update Seating</button>
       </div>
 
-      <!-- View Seating Chart View -->
+
       <div id="seatingChartContainer" class="seating-view active">
         <p class="empty-message">Loading seating data...</p>
       </div>
 
-      <!-- Setup Seating View -->
+
       <div id="setupSeatingView" class="seating-view">
         <p id="restaurantInfo" class="loading">Loading your restaurant…</p>
         
@@ -126,6 +127,67 @@
 
             <button type="submit" class="btn-submit" id="setupSubmitBtn">
               Save Seating
+            </button>
+          </form>
+        </div>
+      </div>
+
+
+      <div id="updateSeatingView" class="seating-view">
+        <p id="updateRestaurantInfo" class="loading">Loading your seating…</p>
+        
+        <div class="reservation-form">
+          <form id="updateSeatingForm">
+            <div class="form-group">
+              <label for="seating_id">Select Table *</label>
+              <select id="seating_id" name="seating_id" required disabled>
+                <option value="">Loading seating...</option>
+              </select>
+              <small>Choose the table you want to update</small>
+            </div>
+
+            <div class="form-group">
+              <label for="update_table_name">Table Name *</label>
+              <input
+                type="text"
+                id="update_table_name"
+                name="table_name"
+                required
+                placeholder="e.g. Table A1"
+                disabled
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="update_room_name">Room/Zone *</label>
+              <input
+                type="text"
+                id="update_room_name"
+                name="room_name"
+                required
+                placeholder="e.g. Main Dining"
+                disabled
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="update_capacity">Capacity *</label>
+              <input
+                type="number"
+                id="update_capacity"
+                name="capacity"
+                required
+                min="1"
+                placeholder="e.g. 4"
+                disabled
+              />
+            </div>
+
+            <div class="error-message" id="updateSeatingError"></div>
+            <div class="success-message" id="updateSeatingSuccess"></div>
+
+            <button type="submit" class="btn-submit" id="updateSeatingSubmitBtn" disabled>
+              Save Changes
             </button>
           </form>
         </div>

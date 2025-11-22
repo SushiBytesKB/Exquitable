@@ -1,20 +1,12 @@
-// bookings.js - All bookings-related logic with modals
-
 import { supabase } from "./supabaseClient.js";
 
-console.log("✅ Bookings.js module loaded successfully");
-
-// Wait for authentication before initializing
 function waitForAuth() {
   return new Promise((resolve) => {
     if (window.authReady) {
-      console.log("Auth already ready");
       resolve();
       return;
     }
-    console.log("Waiting for auth-ready event...");
     window.addEventListener('auth-ready', () => {
-      console.log("Auth-ready event received");
       window.authReady = true;
       resolve();
     }, { once: true });
@@ -23,17 +15,12 @@ function waitForAuth() {
 
 const path = window.location.pathname.toLowerCase();
 
-console.log("Current path:", path);
-console.log("Checking if path includes 'bookings':", path.includes("bookings"));
 
-// --- LOGIC FOR bookings.html (VIEW ALL RESERVATIONS) ---
 if (path.includes("bookings")) {
   (async () => {
     await waitForAuth();
     
     const { data: { user } } = await supabase.auth.getUser();
-    console.log("📧 User email from Supabase:", user?.email);
-console.log("Raw user object:", user);
 
     if (!user) {
       window.location.href = "login.html";
@@ -48,7 +35,6 @@ console.log("Raw user object:", user);
     const tbody = document.querySelector("#bookingsTable tbody");
     if (tbody) tbody.innerHTML = "";
 
-    // Helper function to format date
     const formatDateTime = (dateString) => {
       if (!dateString) return "N/A";
       try {
@@ -59,7 +45,6 @@ console.log("Raw user object:", user);
       }
     };
 
-    // Load and display bookings
     async function loadBookings() {
       const { data: restaurants, error: rError } = await supabase
         .from("restaurants")
@@ -127,7 +112,7 @@ console.log("Raw user object:", user);
       });
     }
 
-    // Helper functions for operating hours
+
     const parseTimeToMinutes = (timeString) => {
       if (!timeString) return null;
       let cleaned = String(timeString).trim().toLowerCase().replace(/\s+/g, "");
@@ -223,7 +208,6 @@ console.log("Raw user object:", user);
           try {
             hoursData = JSON.parse(hoursData);
           } catch (err) {
-            console.warn("Unable to parse operating_hours JSON:", err);
           }
         }
         restaurantOperatingHours = normalizeHoursObject(hoursData);
@@ -358,17 +342,14 @@ console.log("Raw user object:", user);
       }
     }
 
-    // Open modal and load tables when new reservation button is clicked
     const btnNewReservation = document.getElementById("btnNewReservation");
 
 if (btnNewReservation) {
   btnNewReservation.addEventListener("click", async () => {
-    console.log("btnNewReservation actually clicked"); 
     await loadTables();
   });
 }
 
-    // Handle new reservation form submission
     const newReservationForm = document.getElementById("newReservationForm");
     const submitBtn = document.getElementById("submitBtn");
     const reservationLoadingBar = document.getElementById("reservationLoadingBar");
@@ -386,11 +367,8 @@ if (btnNewReservation) {
 
     if (newReservationForm) {
       (async () => {
-        console.log("📌 Reservation page detected. Setting up form submission...");
-      
           const { data: { user } } = await supabase.auth.getUser();
-          
-          // Show back link for authenticated owners
+
           const backLink = document.getElementById("backLink");
           if (backLink) {
             backLink.style.display = "inline-block";
@@ -519,7 +497,6 @@ if (btnNewReservation) {
                 try {
                   hoursData = JSON.parse(hoursData);
                 } catch (err) {
-                  console.warn("Unable to parse operating_hours JSON:", err);
                 }
               }
               restaurantOperatingHours = normalizeHoursObject(hoursData);
@@ -589,7 +566,7 @@ if (btnNewReservation) {
             const openMinutes = parseTimeToMinutes(hours.open);
             const closeMinutes = parseTimeToMinutes(hours.close);
             if (openMinutes === null || closeMinutes === null) return true;
-            if (openMinutes === closeMinutes) return true; // treat as 24 hours
+            if (openMinutes === closeMinutes) return true;
       
             const reservationMinutes = date.getHours() * 60 + date.getMinutes();
             if (openMinutes < closeMinutes) {
@@ -598,21 +575,17 @@ if (btnNewReservation) {
                 hours,
               };
             }
-            // Closing time passes midnight
+ 
             return {
               allowed: reservationMinutes >= openMinutes || reservationMinutes < closeMinutes,
               hours,
             };
           };
-      
-        // Helper function to get all tables for a restaurant
+
         async function getTablesForRestaurant(restaurantId) {
           if (!restaurantId) {
-            console.error("❌ Restaurant ID is required");
             return { tables: [], error: "Restaurant ID is required" };
           }
-      
-          console.log("🔍 Fetching tables for restaurant:", restaurantId);
       
           const { data: tables, error } = await supabase
             .from("restaurant_seating")
@@ -622,15 +595,13 @@ if (btnNewReservation) {
             .order("table_name", { ascending: true });
       
           if (error) {
-            console.error("❌ Error fetching tables:", error.message);
             return { tables: [], error: error.message };
           }
       
-          console.log("✅ Tables found for restaurant:", { restaurantId, count: tables?.length || 0, tables });
           return { tables: tables || [], error: null };
         }
       
-          // Function to load tables with available seats into dropdown
+
           async function loadTables(restaurantId) {
             if (!tableSelect) return;
       
@@ -648,14 +619,14 @@ if (btnNewReservation) {
                 }
       
             if (tables && tables.length > 0) {
-              // Fetch confirmed reservations to calculate available seats
+
               const { data: reservations, error: reservationsError } = await supabase
                 .from("reservations")
                 .select("table_id, guest_count, status")
                 .eq("restaurant_id", restaurantId)
-                .eq("status", "confirmed"); // Only count confirmed reservations
+                .eq("status", "confirmed"); 
       
-              // Calculate allocated seats per table
+
               const allocatedSeatsByTable = {};
               if (reservations && !reservationsError) {
                 reservations.forEach((reservation) => {
@@ -680,13 +651,12 @@ if (btnNewReservation) {
                 tableSelect.appendChild(option);
               });
               tableSelect.disabled = false;
-              console.log(`✅ Loaded ${tables.length} table(s) with available seats`);
             } else {
               tableSelect.innerHTML = '<option value="">No tables available</option>';
             }
           }
       
-          // Ensure the user is authenticated and load their restaurant automatically
+
           if (!user) {
             window.location.href = "login.html";
             return;
@@ -699,7 +669,6 @@ if (btnNewReservation) {
             .eq("email", user_email);
       
           if (rError) {
-            console.error("Error loading restaurant:", rError);
             if (tableSelect) {
               tableSelect.innerHTML = '<option value="">Error loading restaurant</option>';
             }
@@ -715,15 +684,13 @@ if (btnNewReservation) {
       
           restaurantId = restaurants[0].id;
           setRestaurantHours(restaurants[0]);
-          console.log("✅ Restaurant ID automatically loaded for owner:", restaurantId);
       
           await loadTables(restaurantId);
       
           if (reservationForm) {
             reservationForm.addEventListener("submit", async (e) => {
             e.preventDefault();
-      
-            // Get all values from the form inputs
+
             const tableId = e.target.table_id?.value?.trim();
             const customerEmail = e.target.customer_email?.value?.trim();
             const customerName = e.target.customer_name?.value?.trim();
@@ -731,7 +698,7 @@ if (btnNewReservation) {
             const guestCount = parseInt(guestCountValue, 10);
             const start_time = e.target.start_time?.value || e.target.reservation_time?.value;
       
-            // Basic validation check
+
             if (!restaurantId) {
                 alert("Error: Restaurant not found. Please refresh the page.");
               return;
@@ -792,7 +759,6 @@ if (btnNewReservation) {
             }
       
             if (reservationSubmitting) {
-              console.log("⚠️ Reservation submission already in progress, ignoring duplicate click.");
               return;
             }
 
@@ -800,8 +766,6 @@ if (btnNewReservation) {
             setReservationLoadingState(true);
 
             try {
-              // --- Step 1: Get all tables for this restaurant ---
-              console.log("🔍 Step 1: Getting all tables for restaurant:", restaurantId);
               const { tables: restaurantTables, error: tablesError } = await getTablesForRestaurant(restaurantId);
               
               if (tablesError) {
@@ -814,10 +778,7 @@ if (btnNewReservation) {
                 return;
               }
 
-              console.log(`✅ Found ${restaurantTables.length} table(s) for restaurant ${restaurantId}:`, restaurantTables);
-
-              // --- Step 2: Verify that the selected table belongs to this restaurant ---
-              console.log("🔍 Step 2: Validating table ownership:", { restaurantId, tableId });
+              
               
               const selectedTable = restaurantTables.find(table => table.id === tableId);
               
@@ -825,30 +786,15 @@ if (btnNewReservation) {
                 const tableIds = restaurantTables.map(t => t.id).join(", ");
                 const errorMsg = `Error: Table ${tableId} does not belong to restaurant ${restaurantId}.\n\nValid table IDs for this restaurant: ${tableIds}`;
                 alert(errorMsg);
-                console.error("❌ Table validation failed:", {
-                  requestedTableId: tableId,
-                  restaurantId,
-                  validTableIds: restaurantTables.map(t => ({ id: t.id, name: t.table_name }))
-                });
                 return;
               }
 
-              console.log("✅ Table validation passed:", {
-                tableId: selectedTable.id,
-                tableName: selectedTable.table_name,
-                restaurantId: selectedTable.restaurant_id,
-                capacity: selectedTable.capacity
-              });
-
-              // Use the selected table's capacity
               const tableCapacity = selectedTable.capacity || 0;
 
               if (tableCapacity <= 0) {
                 alert("Selected table has no capacity configured.");
                 return;
               }
-
-              // 2. Sum all confirmed guests for this restaurant
               const { data: confirmedReservations, error: confirmedError } =
                 await supabase
                   .from("reservations")
@@ -858,7 +804,6 @@ if (btnNewReservation) {
                   .eq("table_id", tableId);
 
               if (confirmedError) {
-                console.error("❌ Error fetching confirmed reservations:", confirmedError.message);
                 alert(`Unable to verify existing reservations: ${confirmedError.message}`);
                 return;
               }
@@ -880,14 +825,12 @@ if (btnNewReservation) {
                 return;
               }
 
-              // Calculate predicted_end_time (1 hour after start_time)
               const predictedEndDateTime = new Date(startDateTime);
               predictedEndDateTime.setHours(predictedEndDateTime.getHours() + 1);
 
               const start_time_iso = startDateTime.toISOString();
               const predicted_end_time_iso = predictedEndDateTime.toISOString();
 
-              // Create reservation data object
               const reservationData = {
                 restaurant_id: restaurantId,
                 table_id: tableId,
@@ -896,33 +839,29 @@ if (btnNewReservation) {
                 start_time: start_time_iso,
                 predicted_end_time: predicted_end_time_iso,
                 guest_count: guestCount,
-                status: "confirmed", // Set status to confirmed by default
+                status: "confirmed", 
               };
 
               const { data, error } = await supabase
                 .from("reservations")
                 .insert([reservationData])
-                .select(); // Use select() to return the inserted data
+                .select();
 
               if (error) {
-                console.error("❌ Error submitting reservation:", error.message);
                 alert(`Failed to create reservation: ${error.message}. Check RLS policy.`);
               } else {
                 alert("Reservation successfully created!");
-                reservationForm.reset(); // Clear the form on success
+                reservationForm.reset();
                   
-                  // Reload table availability
                   if (tableSelect) {
                     await loadTables(restaurantId);
                   }
                   
-                  // Redirect to bookings page after 2 seconds
                   setTimeout(() => {
                     window.location.href = "bookings.html";
                   }, 2000);
               }
             } catch (err) {
-              console.error("❌ Unexpected error while creating reservation:", err);
               alert("Unexpected error while creating the reservation. Please try again.");
             } finally {
               reservationSubmitting = false;
@@ -933,7 +872,6 @@ if (btnNewReservation) {
         })();
       }
 
-    // Handle update reservation
     window.openUpdateModal = (id, status, price, actualEndTime) => {
       document.getElementById("reservationId").value = id;
       document.getElementById("newStatus").value = status || "";
@@ -993,7 +931,6 @@ if (btnNewReservation) {
       });
     }
 
-    // Handle delete reservation
     window.openDeleteModal = (id, customerName, customerEmail, tableName, roomName) => {
       const deleteInfo = document.getElementById("deleteReservationInfo");
       deleteInfo.innerHTML = `
@@ -1042,7 +979,6 @@ if (btnNewReservation) {
       });
     }
 
-    // Initial load
     loadBookings();
   })();
 }

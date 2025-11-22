@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="./CSS/booking.css" />
   <link rel="stylesheet" href="./CSS/forms.css" />
   <style>
-    /* Modal Overlay */
+
     .modal-overlay {
       display: none;
       position: fixed;
@@ -228,7 +228,7 @@
     </div>
   </div>
 
-  <!-- New Reservation Modal -->
+
   <div class="modal-overlay" id="newReservationModal">
     <div class="modal-card">
       <div class="modal-header">
@@ -310,7 +310,7 @@
     </div>
   </div>
 
-  <!-- Update Reservation Modal -->
+
   <div class="modal-overlay" id="updateReservationModal">
     <div class="modal-card">
       <div class="modal-header">
@@ -379,7 +379,7 @@
     </div>
   </div>
 
-  <!-- Delete Confirmation Modal -->
+
   <div class="modal-overlay" id="deleteReservationModal">
     <div class="modal-card">
       <div class="modal-header">
@@ -387,14 +387,14 @@
         <button class="modal-close" onclick="closeModal('deleteReservationModal')">&times;</button>
       </div>
       
-      <div class="warning-icon">⚠️</div>
+      <div class="warning-icon"></div>
       <div class="warning-text">
         <h3>Warning: This action cannot be undone!</h3>
         <p>Are you sure you want to permanently delete this reservation?</p>
       </div>
 
       <div class="reservation-info" id="deleteReservationInfo">
-        <!-- Reservation details will be populated here -->
+
       </div>
 
       <div class="error-message" id="deleteErrorMessage"></div>
@@ -414,7 +414,7 @@
   <script type="module" src="./JS/app.js"></script>
 <script type="module" src="./JS/bookings.js"></script>
   <script>
-    // Modal control functions
+
     function openModal(modalId) {
       document.getElementById(modalId).classList.add('active');
     }
@@ -423,11 +423,11 @@
       document.getElementById(modalId).classList.remove('active');
     }
     
-    // Make functions globally accessible
+
     window.openModal = openModal;
     window.closeModal = closeModal;
     
-    // Close modal when clicking outside
+
     document.querySelectorAll('.modal-overlay').forEach(overlay => {
       overlay.addEventListener('click', (e) => {
         if (e.target === overlay) {
@@ -436,7 +436,7 @@
       });
     });
     
-    // New Reservation button handler
+
     document.getElementById('btnNewReservation').addEventListener('click', () => {
       openModal('newReservationModal');
     });

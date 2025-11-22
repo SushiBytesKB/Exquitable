@@ -1,86 +1,70 @@
 import { supabase } from "./supabaseClient.js";
 
-// Wait for authentication before initializing
 function waitForAuth() {
   return new Promise((resolve) => {
-    // Check if auth-ready event already fired (app.js loaded first)
     if (window.authReady) {
       resolve();
       return;
     }
-    // Wait for auth-ready event
     window.addEventListener('auth-ready', () => {
       window.authReady = true;
-      console.log("auth-ready event fired");
       resolve();
     }, { once: true });
   });
 }
-
-// Tab Navigation
 const tabButtons = document.querySelectorAll('.tab-btn');
 const seatingViews = document.querySelectorAll('.seating-view');
 
 tabButtons.forEach(btn => {
   btn.addEventListener('click', () => {
     const viewName = btn.dataset.view;
-    if (!viewName) return; // Skip if no data-view attribute (e.g., links)
+    if (!viewName) return;
     
-    // Update active tab
     tabButtons.forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     
-    // Show/hide views
     seatingViews.forEach(v => {
       v.classList.remove('active');
       if (viewName === 'view' && v.id === 'seatingChartContainer') {
         v.classList.add('active');
       } else if (viewName === 'setup' && v.id === 'setupSeatingView') {
         v.classList.add('active');
+      } else if (viewName === 'update' && v.id === 'updateSeatingView') {
+        v.classList.add('active');
       }
     });
   });
 });
 
-// Handle URL parameters for view switching
 const urlParams = new URLSearchParams(window.location.search);
 const view = urlParams.get('view') || 'view';
-
-// Switch to appropriate view based on URL
 if (view === 'setup') {
   const setupBtn = document.querySelector('[data-view="setup"]');
   if (setupBtn) {
     setupBtn.click();
   }
 } else if (view === 'update') {
-  document.querySelector('[data-view="update"]')?.click();
+  const updateBtn = document.querySelector('[data-view="update"]');
+  if (updateBtn) {
+    updateBtn.click();
+  }
 }
 
 const path = window.location.pathname.toLowerCase();
 
-// View Seating Chart Logic
 if (document.getElementById("seatingChartContainer") && path.includes("seatingchart.html")) {
-  // Ensure DOM is ready (works even if DOM is already loaded)
   const initSeatingChart = async () => {
-      console.log("Seating chart page loaded");
-  
       const { data: { user } } = await supabase.auth.getUser();
   
       if (!user) {
-        console.log("No user found, redirecting to login");
         window.location.href = "login.html";
         return;
       } else {
-        console.log("User authenticated:", user.email);
-  
         let restaurantId = null;
   
-        // Try to get restaurant_id from user metadata
         if (user.user_metadata && user.user_metadata.restaurant_id) {
           restaurantId = user.user_metadata.restaurant_id;
-          console.log("Restaurant ID from user metadata:", restaurantId);
         } else {
-          // Get from restaurants table using email
           const { data: restaurantData, error: restaurantError } = await supabase
             .from("restaurants")
             .select("id")
@@ -88,10 +72,8 @@ if (document.getElementById("seatingChartContainer") && path.includes("seatingch
             .single();
   
           if (restaurantError) {
-            console.error("Error fetching restaurant:", restaurantError.message);
           } else if (restaurantData) {
             restaurantId = restaurantData.id;
-            console.log("Restaurant ID from restaurants table:", restaurantId);
           }
         }
   
@@ -104,11 +86,9 @@ if (document.getElementById("seatingChartContainer") && path.includes("seatingch
               </p>
             `;
           }
-          console.error("No restaurant_id found for user");
           return;
         }
   
-        // Fetch seating data filtered by restaurant_id (UUID)
         const { data: seatingData, error } = await supabase
           .from("restaurant_seating")
           .select("*")
@@ -118,12 +98,7 @@ if (document.getElementById("seatingChartContainer") && path.includes("seatingch
         const container = document.querySelector("#seatingChartContainer");
         if (!container) return;
   
-  
-        console.log("Restaurant ID:", restaurantId);
-        console.log("Seating data fetch result:", { seatingData, error });
-  
         if (error) {
-          console.error("Error fetching seating data:", error.message);
           container.innerHTML = `<p class="empty-message">Error loading seating chart: ${error.message}</p>`;
           return;
         }
@@ -137,8 +112,6 @@ if (document.getElementById("seatingChartContainer") && path.includes("seatingch
           return;
         }
   
-  
-        // Fetch reservations for this restaurant to calculate allocated seats
         const { data: reservations, error: reservationsError } = await supabase
           .from("reservations")
           .select("table_id, guest_count, status")
@@ -146,10 +119,8 @@ if (document.getElementById("seatingChartContainer") && path.includes("seatingch
           .in("status", ["confirmed"]);
   
         if (reservationsError) {
-          console.error("Error fetching reservations:", reservationsError);
         }
   
-        // Calculate allocated seats per table
         const allocatedSeatsByTable = {};
         if (reservations) {
           reservations.forEach((reservation) => {
@@ -162,7 +133,6 @@ if (document.getElementById("seatingChartContainer") && path.includes("seatingch
           });
         }
   
-        // Group seating data by room_name and add allocated/available seat info
         const groupedData = {};
         seatingData.forEach((seat) => {
           const rawRoomName = seat.room_name ? seat.room_name.trim() : "";
@@ -175,7 +145,6 @@ if (document.getElementById("seatingChartContainer") && path.includes("seatingch
             };
           }
           
-          // Calculate allocated and available seats for this table
           const allocated = allocatedSeatsByTable[seat.id] || 0;
           const capacity = seat.capacity || 0;
           const available = Math.max(0, capacity - allocated);
@@ -187,7 +156,6 @@ if (document.getElementById("seatingChartContainer") && path.includes("seatingch
           });
         });
   
-        // Create HTML for each room
         let html = "";
         Object.values(groupedData).forEach((group) => {
           html += `
@@ -235,10 +203,8 @@ if (document.getElementById("seatingChartContainer") && path.includes("seatingch
   }
 }
 
-// Setup Seating Logic
 if (document.getElementById("setupSeatingForm")) {
   (async () => {
-    // Wait for authentication to be ready
     await waitForAuth();
     
     const { data: { user } } = await supabase.auth.getUser();
@@ -280,7 +246,6 @@ if (document.getElementById("setupSeatingForm")) {
     };
 
     if (!form) {
-      console.warn("setupSeatingForm not found");
       return;
     }
 
@@ -290,7 +255,6 @@ if (document.getElementById("setupSeatingForm")) {
       .eq("email", user.email);
 
     if (rError) {
-      console.error("Error loading restaurant:", rError);
       showError(`Error loading restaurant: ${rError.message}`);
       form.querySelectorAll("input, button").forEach((el) => (el.disabled = true));
       return;
@@ -355,7 +319,6 @@ if (document.getElementById("setupSeatingForm")) {
       }
 
       if (error) {
-        console.error("Error inserting seating:", error);
         showError(`Failed to save seating: ${error.message}`);
       } else {
         showSuccess("Seating saved successfully!");
@@ -365,10 +328,8 @@ if (document.getElementById("setupSeatingForm")) {
   })();
 }
 
-// Update Seating Logic
 if (document.getElementById("updateSeatingForm")) {
   (async () => {
-    // Wait for authentication to be ready
     await waitForAuth();
     
     const { data: { user } } = await supabase.auth.getUser();
@@ -414,7 +375,6 @@ if (document.getElementById("updateSeatingForm")) {
     };
 
     if (!form || !seatingSelect || !tableNameInput || !roomNameInput || !capacityInput) {
-      console.warn("Update seating form elements not found");
       return;
     }
 
@@ -424,7 +384,6 @@ if (document.getElementById("updateSeatingForm")) {
       .eq("email", user.email);
 
     if (rError) {
-      console.error("Error loading restaurant:", rError);
       showError(`Error loading restaurant: ${rError.message}`);
       form.querySelectorAll("input, button, select").forEach((el) => (el.disabled = true));
       return;
@@ -452,7 +411,6 @@ if (document.getElementById("updateSeatingForm")) {
       .order("table_name", { ascending: true });
 
     if (seatingError) {
-      console.error("Error loading seating:", seatingError);
       showError(`Error loading seating: ${seatingError.message}`);
       seatingSelect.innerHTML = '<option value="">Unable to load seating</option>';
       return;
@@ -550,7 +508,6 @@ if (document.getElementById("updateSeatingForm")) {
       }
 
       if (error) {
-        console.error("Error updating seating:", error);
         showError(`Failed to update seating: ${error.message}`);
       } else if (!updatedRow) {
         showError("No seating entry was updated. Please refresh and try again.");

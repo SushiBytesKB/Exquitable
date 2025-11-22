@@ -1,6 +1,5 @@
 import { supabase } from "./supabaseClient.js";
 
-// Login page logic
 const loginForm = document.querySelector("#loginForm");
 if (loginForm) {
   loginForm.addEventListener("submit", async (e) => {
