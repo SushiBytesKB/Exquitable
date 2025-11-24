@@ -41,4 +41,9 @@ Disclaimer - Seating Chart is currently not synced with Supabase.
 
 ### File Structure Overview: Brief explanation of important files and folders.
 
-### Attribution: A clear list of any code or assets sourced externally, including links or citations. One submission per group is enough: make sure you include all team members name in your submission.
+There are two main folders, AI and Website. The frontend logic is within the Website director. AI directory communicates as a backend to the website via API routes created using Flask, which is why you run python server.py within AI directory to communicate with the AI models. Supabase is extensively called within the website directory for fetching and updating data. Lastly, the website stack is composed of the vanilla tech stack (CSS, JS, HTML).
+
+### Attribution:
+
+Debugging and Password Encryption Sign Up Logic supported by Gemini, AI model.
+Background and Logo images created by Gemini.
