@@ -119,10 +119,12 @@ function reservationCard(reservation) {
 // Make these global
 window.updateStatus = async (id, status) => {
   await supabase.from("reservations").update({ status: status }).eq("id", id);
+  fetchReservations();
 };
 
 window.deleteReservation = async (id) => {
   await supabase.from("reservations").delete().eq("id", id);
+  fetchReservations();
 };
 
 // Popup Logic
@@ -140,7 +142,7 @@ async function getAvailableTables() {
   const dropdownTables = document.getElementById("customerTableBooking");
   dropdownTables.innerHTML = "";
 
-  // 1. Get all tables
+  // Get all tables
   const { data: allTables } = await supabase
     .from("restaurant_seating")
     .select("id, table_name")
