@@ -1,43 +1,47 @@
-import { supabase } from "./supabaseClient.js";
+const testUsers = [
+  {
+    email: "admin@exquitable.com",
+    password: "admin",
+  },
+  {
+    email: "user@exquitable.com",
+    password: "user",
+  },
+  {
+    email: "guest@exquitable.com",
+    password: "guest",
+  },
+];
+
+// sign up needs: email and password
+// login needs: email and password
 
 const signupForm = document.getElementById("signupForm");
 const errorMessage = document.getElementById("errorMessage");
 
 if (signupForm) {
-  signupForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
+  signupForm.addEventListener("submit", (event) => {
+    event.preventDefault();
 
-    const restaurantName = e.target.restaurantName.value;
-    const email = e.target.email.value;
-    const password = e.target.password.value;
+    const emailInput = document.getElementById("email").value;
+    const passwordInput = document.getElementById("password").value;
 
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email: email,
-      password: password,
-    });
+    let isAuthenticated = false;
 
-    if (authError) throw authError;
-
-    if (authData.user) {
-      const { error: dbError } = await supabase.from("restaurants").insert([
-        {
-          owner_id: authData.user.id,
-          name: restaurantName,
-          email: email,
-          password: password,
-          operating_hours: { default: "17:00-22:00" }, // Default hours
-        },
-      ]);
-
-      if (dbError) {
-        throw new Error(
-          "Account created, but failed to set up restaurant profile: " +
-            dbError.message
-        );
+    for (const user of testUsers) {
+      if (user.email == emailInput && user.password == passwordInput) {
+        isAuthenticated = true;
+        break;
       }
+    }
 
-      alert("Account created successfully! Please log in.");
-      window.location.href = "login.html";
+    if (isAuthenticated) {
+      errorMessage.style.display = "none";
+
+      window.location.href = "index.html";
+    } else {
+      errorMessage.style.display = "block";
+      errorMessage.textContent = "Incorrect email or password";
     }
   });
 }
