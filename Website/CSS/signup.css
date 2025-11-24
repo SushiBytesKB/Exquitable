@@ -1,0 +1,143 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+header
+{
+  height: 200px;
+  background-image: url("../Resources/ExquiTableLogoTransparent2.png");
+  background-size: 20%;
+  background-position: left;
+  background-repeat: no-repeat;
+  background-color: #F7F3E8; 
+}
+
+body
+{
+  background-color: #F7F3E8; 
+  font-family: 'Inter', sans-serif;
+}
+
+footer
+{
+  padding-top: 300px;
+  font-size: 2rem;
+  text-align: right;
+  padding-right: 2rem;
+}
+
+
+.signupSection 
+{
+    height: 45rem;
+    width: 50rem; 
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 150px;
+    position: relative;
+    text-align: center;
+    padding: 3rem;
+
+    background-image: url("../Resources/doodleBackgroundEdited.png");
+    background-size: auto;
+    background-color: #F7F3E8; 
+    border: 2px solid black;
+    border-radius: 3px;
+    box-shadow: 8px 8px 20px rgba(0, 0, 0, 0.2);
+
+    z-index: 5;
+}
+
+.signupCard 
+{
+    background-color: rgb(255, 248, 235); 
+    border: 2px solid black;
+    border-radius: 3px;
+    padding: 3rem;
+    box-shadow: 8px 8px 20px rgba(0, 0, 0, 0.2);
+
+    width: 80%;
+    margin: 0 auto; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.textSignup
+{
+    position: relative;
+    z-index: 3;
+    color: #4E342E;
+}
+
+.textSignup hr 
+{
+    width: 50%;
+    height: 2px;
+    background-color: black;
+    border: none;
+    margin-bottom: 3rem;
+}
+
+.textSignup h1 
+{
+    font-size: 4rem;
+    color: #4E342E;
+    margin-bottom: 1rem;
+}
+
+#signupForm 
+{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+label 
+{
+    font-size: 1.8rem;
+    color: #4E342E;
+    width: 80%;
+    text-align: left;
+    margin-bottom: 0.5rem;
+}
+
+.signupInput 
+{
+    width: 80%;
+    height: 3.5rem;
+    padding: 0.5rem;
+    font-size: 1.6rem;
+    border: 1px solid #4E342E;
+    background-color: white;
+    box-sizing: border-box;
+}
+
+.btnSignupSubmit 
+{
+    margin-top: 2rem;
+    color: #F7F3E8; 
+    background-color: #BF360C;
+    font-size: 2rem;
+    padding: 1rem 3rem;
+    border: none;
+    cursor: pointer;
+    width: 80%;
+}
+
+.btnSignupSubmit:hover 
+{
+    background-color: #e23d0a;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+}
+
+#errorMessage 
+{
+    color: #BF360C; 
+    font-size: 1.6rem;
+    font-weight: bold;
+    margin-top: 2rem;
+    display: none; 
+}

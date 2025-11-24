@@ -7,7 +7,41 @@
     <link rel="stylesheet" href="CSS/style.css" />
   </head>
   <body>
-    <h1>Seating Charts</h1>
-    <script src="JS/app.js"></script>
+    <div class="seatingChart">
+      <div class="overlay"></div>
+      <div class="textSeatingChart">
+        <button class="btnToDashboard"><a href="index.html">Dashboard</a></button>
+        <button  onclick="openPopup()" class="btnAddRoom">Add Room</button>
+
+        <div id="popup" class="popupOverlay">
+            <div class="popupContent">
+              <h2 class="newReservation">New Room</h2>
+              <form id="addRoomForm" action="">
+                <label for="newRoomName">Room Name: </label>
+                <input class="newRoomName" type="text" placeholder="Room Name" name="newRoomName">
+
+
+
+                <div id="tableListContainer">
+                  <div class="tableRow">
+                    <input class="newRoomTable" type="number" placeholder="Table Numver" required>
+                    <input class="newRoomSeat" type="number" placeholder="Number of Seats" required>
+                  </div>
+                </div>
+
+                <button type="button" class="btnAddRow" onclick="addTableRow()">Add Table</button>
+
+                <div class="formButtons">
+                  <input class="btnSubmit" type="submit">
+                  <button type="button" class="btnBookingDone" onclick="closePopup()">Done</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+      <div id="seatingChartDiv" class="seatingChartDiv"></div>
+      </div>
+    </div>
+    <script src="JS/seatingChart.js"></script>
   </body>
 </html>

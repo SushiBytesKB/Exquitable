@@ -1,37 +1,145 @@
-.login_container{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    background-color: #f5f5f5;  
+* {
+  margin: 0;
+  padding: 0;
 }
 
-#loginForm{
-    display: flex;
-    flex-direction: column;
-    width: 300px;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: #fff;
-    gap: 25px;
+header {
+  height: 200px;
+  background-image: url("../Resources/ExquiTableLogoTransparent2.png");
+  background-size: 20%;
+  background-position: left;
+  background-repeat: no-repeat;
+  background-color: #f7f3e8;
 }
 
-input{
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 3px;
-    font-size: 16px;
+body {
+  background-color: #f7f3e8;
+  font-family: "Inter", sans-serif;
 }
 
-button{
-    padding: 10px;
-    background-color: black;
-    color: white;
-    border: none;
-    border-radius: 3px;
-    font-size: 16px;
-    cursor: pointer;
+footer {
+  padding-top: 300px;
+  font-size: 2rem;
+  text-align: right;
+  padding-right: 2rem;
+}
+
+.loginSection {
+  height: 45rem;
+  width: 50rem;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 150px;
+  position: relative;
+  text-align: center;
+  padding: 3rem;
+
+  background-image: url("../Resources/doodleBackgroundEdited.png");
+  background-size: auto;
+  background-color: #f7f3e8;
+  border: 2px solid black;
+  border-radius: 3px;
+  box-shadow: 8px 8px 20px rgba(0, 0, 0, 0.2);
+
+  z-index: 5;
+}
+
+.loginCard {
+  background-color: rgb(255, 248, 235);
+  border: 2px solid black;
+  border-radius: 3px;
+  padding: 3rem;
+  box-shadow: 8px 8px 20px rgba(0, 0, 0, 0.2);
+
+  width: 80%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.textLogin {
+  position: relative;
+  z-index: 3;
+  color: #4e342e;
+}
+
+.textLogin hr {
+  width: 50%;
+  height: 2px;
+  background-color: black;
+  border: none;
+  margin-bottom: 3rem;
+}
+
+.textLogin h1 {
+  font-size: 4rem;
+  color: #4e342e;
+  margin-bottom: 1rem;
+}
+
+#loginForm {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+label {
+  font-size: 1.8rem;
+  color: #4e342e;
+  width: 80%;
+  text-align: left;
+  margin-bottom: 0.5rem;
+}
+
+.loginInput {
+  width: 80%;
+  height: 3.5rem;
+  padding: 0.5rem;
+  font-size: 1.6rem;
+  border: 1px solid #4e342e;
+  background-color: white;
+  box-sizing: border-box;
+}
+
+.btnLoginSubmit {
+  margin-top: 2rem;
+  color: #f7f3e8;
+  background-color: #bf360c;
+  font-size: 2rem;
+  padding: 1rem 3rem;
+  border: none;
+  cursor: pointer;
+  width: 80%;
+}
+
+.btnLoginSubmit:hover {
+  background-color: #e23d0a;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+#errorMessage {
+  color: #bf360c;
+  font-size: 1.6rem;
+  font-weight: bold;
+  margin-top: 2rem;
+  display: none;
+}
+
+.toSignup {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-top: 2rem;
+
+  font-family: "Inter", sans-serif;
+  font-size: 1.5rem;
+  color: #4e342e;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.toSignup:hover {
+  color: #bf360c;
 }

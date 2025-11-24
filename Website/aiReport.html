@@ -3,12 +3,69 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Manage AI</title>
+    <title>AI Analytics</title>
+    <link rel="stylesheet" href="CSS/style.css" />
     <link rel="stylesheet" href="CSS/aiReport.css" />
   </head>
+
+  <header></header>
+
   <body>
-    <h1>Manage AI</h1>
-    <script type="module" src="JS/app.js"></script>
+    <div class="bookings">
+      <div class="overlay"></div>
+
+      <div class="textBookings">
+        <button class="btnToDashboard">
+          <a href="index.html">Dashboard</a>
+        </button>
+
+        <h1 class="newReservation" style="margin-top: 0">AI Report</h1>
+
+        <div class="filter-bar">
+          <button class="filter-btn active" data-range="today">Today</button>
+          <button class="filter-btn" data-range="week">Week</button>
+          <button class="filter-btn" data-range="month">Month</button>
+          <button class="filter-btn" data-range="year">Year</button>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <h3>Revenue</h3>
+            <div class="value" id="totalRevenue">--</div>
+          </div>
+          <div class="stat-card">
+            <h3>Bookings</h3>
+            <div class="value" id="totalBookings">--</div>
+          </div>
+          <div class="stat-card">
+            <h3>Unsuccessful</h3>
+            <div class="value" id="totalUnsuccessful">--</div>
+          </div>
+          <div class="stat-card">
+            <h3>AI Accuracy</h3>
+            <div class="value" id="predictionAccuracy">--</div>
+          </div>
+          <div class="stat-card">
+            <h3>Peak Hour</h3>
+            <div class="value" id="peakOccupancy">--</div>
+          </div>
+          <div class="stat-card">
+            <h3>Top Customer</h3>
+            <div class="value" id="topCustomerAmount">--</div>
+            <p style="font-size: 0.8rem" id="topCustomerEmail"></p>
+          </div>
+          <div class="stat-card">
+            <h3>Avg Guests</h3>
+            <div class="value" id="avgGuests">--</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script type="module" src="JS/aiReport.js"></script>
   </body>
+
+  <footer>
+    <p>Copyright ©</p>
+  </footer>
 </html>

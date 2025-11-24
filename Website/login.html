@@ -6,22 +6,36 @@
     <title>Login</title>
     <link rel="stylesheet" href="CSS/login.css" />
   </head>
+  <header></header>
   <body>
-    <div class="login_container">
-      <h1>Login</h1>
-      <form id="loginForm">
-        <label for="email">Email:</label>
-        <input type="text" id="email" name="email" required />
+    <div class="loginSection">
+      <div class="overlay"></div>
 
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required />
+      <div class="textLogin">
+        <div class="loginCard">
+          <h1>Login</h1>
+          <hr>
 
-        <button type="submit">Login</button>
-        <p id="errorMessage" style="color: red; margin-top: 10px;"></p>
-      </form>
+          <form id="loginForm" action="">
+
+            <label for="email">Email: </label>
+            <input type="email" class="loginInput" id="email" name="email" placeholder="enter E-Mail..." required>
+
+            <label for="password">Password: </label>
+            <input type="password" class="loginInput" id="password" name="password" placeholder="enter password..." required>
+
+            <button class="btnLoginSubmit" type="submit">Login</button>
+
+            <p id="errorMessage">Invalid email or password.</p>
+          </form>
+
+          <button onclick="location.href='signup.html'" class="toSignup">Don't have an account? Sign Up here!</button>
+
+        </div>
+      </div>
     </div>
 
-
-<script type="module" src="JS/app.js"></script>
+<script src="JS/login.js"></script>
   </body>
+  <footer><p>Copyright ©</p></footer>
 </html>
