@@ -6,7 +6,7 @@
 header
 {
   height: 200px;
-  background-image: url("ExquiTableLogoTransparent2.png");
+  background-image: url("../Resources/ExquiTableLogoTransparent2.png");
   background-size: 20%;
   background-position: left;
   background-repeat: no-repeat;
@@ -40,7 +40,7 @@ footer
   text-align: center;
   padding: 3rem;
 
-  background-image: url("doodleBackgroundEdited.png");
+  background-image: url("../Resources/doodleBackgroundEdited.png");
   background-size: auto;
   border: 2px solid black;
   border-radius: 3px;
@@ -87,7 +87,7 @@ footer
   padding-bottom: 3rem;
   padding-left: 1.2rem;
 
-  background-image: url("doodleBackgroundEdited.png");
+  background-image: url("../Resources/doodleBackgroundEdited.png");
   background-size: auto;
   background-repeat: repeat;
   border: 2px solid black;
@@ -444,7 +444,7 @@ input.btnSubmit:hover {
   padding-bottom: 3rem;
   padding-left: 1.2rem;
 
-  background-image: url("doodleBackgroundEdited.png");
+  background-image: url("../Resources/doodleBackgroundEdited.png");
   background-size: auto;
   background-repeat: repeat;
   border: 2px solid black;
