@@ -28,7 +28,7 @@ footer
 }
 
 
-.loginSection 
+.signupSection 
 {
     height: 45rem;
     width: 50rem; 
@@ -49,7 +49,7 @@ footer
     z-index: 5;
 }
 
-.loginCard 
+.signupCard 
 {
     background-color: rgb(255, 248, 235); 
     border: 2px solid black;
@@ -64,14 +64,14 @@ footer
     align-items: center;
 }
 
-.textLogin 
+.textSignup
 {
     position: relative;
     z-index: 3;
     color: #4E342E;
 }
 
-.textLogin hr 
+.textSignup hr 
 {
     width: 50%;
     height: 2px;
@@ -80,14 +80,14 @@ footer
     margin-bottom: 3rem;
 }
 
-.textLogin h1 
+.textSignup h1 
 {
     font-size: 4rem;
     color: #4E342E;
     margin-bottom: 1rem;
 }
 
-#loginForm 
+#signupForm 
 {
     width: 100%;
     display: flex;
@@ -104,7 +104,7 @@ label
     margin-bottom: 0.5rem;
 }
 
-.loginInput 
+.signupInput 
 {
     width: 80%;
     height: 3.5rem;
@@ -115,7 +115,7 @@ label
     box-sizing: border-box;
 }
 
-.btnLoginSubmit 
+.btnSignupSubmit 
 {
     margin-top: 2rem;
     color: #F7F3E8; 
@@ -127,7 +127,7 @@ label
     width: 80%;
 }
 
-.btnLoginSubmit:hover 
+.btnSignupSubmit:hover 
 {
     background-color: #e23d0a;
     box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
@@ -140,23 +140,4 @@ label
     font-weight: bold;
     margin-top: 2rem;
     display: none; 
-}
-
-.toSignup 
-{
-    background: none;
-    border: none;
-    padding: 0;
-    margin-top: 2rem;
-
-    font-family: 'Inter', sans-serif;
-    font-size: 1.5rem;
-    color: #4E342E; 
-    text-decoration: underline;
-    cursor: pointer;
-}
-
-.toSignup:hover 
-{
-    color: #BF360C; 
 }
