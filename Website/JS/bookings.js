@@ -1,4 +1,4 @@
- const testReservations = [
+const testReservations = [
   {
     name: "John Smith",
     table: 305,
@@ -6,7 +6,7 @@
     date: "25.11.2025",
     time: "13:45",
     notes: "It is the birthday of his wife so please greet them with champagne",
-    status: "booked"
+    status: "booked",
   },
   {
     name: "James Miller",
@@ -15,7 +15,7 @@
     date: "24.12.2025",
     time: "12:25",
     notes: "Christmas",
-    status: "booked"
+    status: "booked",
   },
   {
     name: "John Smith",
@@ -24,7 +24,7 @@
     date: "30.11.2025",
     time: "13:45",
     notes: "It is the birthday of his wife so please greet them with champagne",
-    status: "booked"
+    status: "booked",
   },
   {
     name: "James Miller",
@@ -33,18 +33,15 @@
     date: "15.11.2025",
     time: "12:25",
     notes: "none",
-    status: "booked"
-  }
+    status: "booked",
+  },
 ];
 
+function reservationCard(reservation) {
+  const reservationCardElement = document.createElement("div");
+  reservationCardElement.className = "reservationCard";
 
-  function reservationCard(reservation)
-  {
-    const reservationCardElement = document.createElement('div');
-    reservationCardElement.className = "reservationCard";
-
-    reservationCardElement.innerHTML = 
-    `<h1>${reservation.name}</h1>
+  reservationCardElement.innerHTML = `<h1>${reservation.name}</h1>
     <hr class= "nameDivider">
     <p>PAX: ${reservation.numPeople}</p>
     <p>Date: ${reservation.date}</p>
@@ -56,59 +53,52 @@
     <button class = "btnDelete">Delete</button>
     <button class = "btnModify">Modify</button>`;
 
-    return reservationCardElement;
-  }
-
-  const reservationsDivElement = document.getElementById('reservations');
-
-  for(reservation of testReservations)
-  {
-    if(reservation.status == "booked")
-    {
-      const newReservation = reservationCard(reservation);
-      reservationsDivElement.appendChild(newReservation);
-    }
-  }
-
-function openPopup()
-{
-  document.getElementById('popup').style.display = "flex";
+  return reservationCardElement;
 }
 
-function closePopup()
-{
-  document.getElementById('popup').style.display = 'none';
+const reservationsDivElement = document.getElementById("reservations");
+
+for (reservation of testReservations) {
+  if (reservation.status == "booked") {
+    const newReservation = reservationCard(reservation);
+    reservationsDivElement.appendChild(newReservation);
+  }
+}
+
+function openPopup() {
+  document.getElementById("popup").style.display = "flex";
+}
+
+function closePopup() {
+  document.getElementById("popup").style.display = "none";
 }
 
 const bookingForm = document.querySelector("#popup form");
 
-if(bookingForm)
-{
-
+if (bookingForm) {
   bookingForm.addEventListener("submit", (event) => {
+    event.preventDefault();
 
-  event.preventDefault();
+    const name = event.target.elements.customerNameBooking.value;
+    const email = event.target.elements.customerEmailBooking.value;
+    const guests = event.target.elements.customerNumberBooking.value;
+    const date = event.target.elements.customerDateBooking.value;
+    const time = event.target.elements.customerTimeBooking.value;
 
-  const name = event.target.elements.customerNameBooking.value;
-  const email = event.target.elements.customerEmailBooking.value;
-  const guests = event.target.elements.customerNumberBooking.value;
-  const date = event.target.elements.customerDateBooking.value;
-  const time = event.target.elements.customerTimeBooking.value;
+    const newReservation = {
+      name: name,
+      table: 415,
+      numPeople: guests,
+      time: time,
+      notes: "This is a test from the add reservations popup",
+      status: "booked",
+    };
+    const reservationsDivElement = document.getElementById("reservations");
 
-  const newReservation = {
-  name: name,
-  table: 415,
-  numPeople: guests,
-  time: time,
-  notes: "This is a test from the add reservations popup",
-  status: "booked"
-  }
-  const reservationsDivElement = document.getElementById('reservations');
+    const newCardElement = reservationCard(newReservation);
 
-  const newCardElement = reservationCard(newReservation);
+    reservationsDivElement.appendChild(newCardElement);
 
-  reservationsDivElement.appendChild(newCardElement);
-
-  bookingForm.reset();
+    bookingForm.reset();
   });
 }
