@@ -1,57 +1,50 @@
 import { supabase } from "./supabaseClient.js";
 
 const signupForm = document.getElementById("signupForm");
+const errorMessage = document.getElementById("errorMessage");
 
 if (signupForm) {
   signupForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
-    // Get values from the form
-    const restaurantName = document.getElementById("name").value;
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
-    const confirmPassword = document.getElementById("confirmPassword").value;
 
-    // Validation
-    if (password !== confirmPassword) {
-      alert("Passwords do not match!");
+    // Sign up the user
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email: email,
+      password: password,
+    });
+
+    if (authError) {
+      errorMessage.style.display = "block";
+      errorMessage.textContent = authError.message;
       return;
     }
 
-    try {
-      // Create user in Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: email,
-        password: password,
-      });
-
-      if (authError) throw authError;
-
-      if (authData.user) {
-        console.log("User created:", authData.user.id);
-
-        // create the restaurant entry
-        const { error: dbError } = await supabase.from("restaurants").insert([
+    if (authData.user) {
+      // Using the email as a placeholder name
+      const { error: profileError } = await supabase
+        .from("restaurants")
+        .insert([
           {
-            name: restaurantName,
-            email: email,
             owner_id: authData.user.id,
+            email: email,
+            name: "My Restaurant", // Default
+            password: "hashed_placeholder", // Schema
           },
         ]);
 
-        if (dbError) {
-          console.error("Error creating restaurant profile:", dbError);
-          alert(
-            "Account created, but failed to set up restaurant profile. Please contact support."
-          );
-        } else {
-          alert("Registration Successful! Please log in.");
-          window.location.href = "login.html";
-        }
+      if (profileError) {
+        console.error("Error creating profile:", profileError);
+        errorMessage.textContent =
+          "Account created, but failed to set up profile.";
+        errorMessage.style.display = "block";
+      } else {
+        errorMessage.style.display = "none";
+        // Redirect to dashboard
+        window.location.href = "index.html";
       }
-    } catch (error) {
-      console.error("Signup Error:", error.message);
-      alert("Signup failed: " + error.message);
     }
   });
 }
