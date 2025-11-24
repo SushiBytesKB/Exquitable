@@ -1,31 +1,21 @@
 import { supabase } from "./supabaseClient.js";
 
-const loginForm = document.querySelector("#loginForm");
-const errorMessage = document.querySelector("#errorMessage");
+const loginForm = document.getElementById("loginForm");
 
 if (loginForm) {
   loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const email = e.target.email.value;
-    const password = e.target.password.value;
-    const submitBtn = e.target.querySelector("button");
+    const emailInput = document.getElementById("email").value;
+    const passwordInput = document.getElementById("password").value;
 
-    try {
-      if (submitBtn) submitBtn.textContent = "Logging in...";
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: emailInput,
+      password: passwordInput,
+    });
 
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email,
-        password: password,
-      });
+    if (error) throw error;
 
-      if (error) throw error;
-
-      window.location.href = "index.html";
-    } catch (error) {
-      console.error("Login error:", error);
-      if (errorMessage) errorMessage.textContent = "Invalid login credentials.";
-      if (submitBtn) submitBtn.textContent = "Login";
-    }
+    window.location.href = "index.html";
   });
 }
