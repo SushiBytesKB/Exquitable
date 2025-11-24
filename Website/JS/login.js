@@ -1,47 +1,54 @@
-const testUsers = [
-  {
-    email: "admin@exquitable.com",
-    password: "admin",
-  },
-  {
-    email: "user@exquitable.com",
-    password: "user",
-  },
-  {
-    email: "guest@exquitable.com",
-    password: "guest",
-  },
-];
-
-// sign up needs: email and password
-// login needs: email and password
+import { supabase } from "./supabaseClient.js";
 
 const loginForm = document.getElementById("loginForm");
-const errorMessage = document.getElementById("errorMessage");
 
 if (loginForm) {
-  loginForm.addEventListener("submit", (event) => {
+  loginForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
-    const emailInput = document.getElementById("email").value;
-    const passwordInput = document.getElementById("password").value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
 
-    let isAuthenticated = false;
+    try {
+      // Sign in with Supabase Auth
+      const { data: authData, error: authError } =
+        await supabase.auth.signInWithPassword({
+          email: email,
+          password: password,
+        });
 
-    for (const user of testUsers) {
-      if (user.email == emailInput && user.password == passwordInput) {
-        isAuthenticated = true;
-        break;
+      if (authError) throw authError;
+
+      console.log("Logged in:", authData.user.id);
+
+      // fetch the Restaurant ID
+      const { data: restaurantData, error: restaurantError } = await supabase
+        .from("restaurants")
+        .select("id, name")
+        .eq("owner_id", authData.user.id)
+        .single();
+
+      if (restaurantError) {
+        console.error("No restaurant found for this user:", restaurantError);
+        alert(
+          "Login successful, but no restaurant profile found. Please contact support."
+        );
+        return;
       }
-    }
 
-    if (isAuthenticated) {
-      errorMessage.style.display = "none";
+      // Save critical info to Local Storage for other pages to use
+      localStorage.setItem("access_token", authData.session.access_token);
+      localStorage.setItem("user_id", authData.user.id);
+      localStorage.setItem("restaurant_id", restaurantData.id);
+      localStorage.setItem("restaurant_name", restaurantData.name);
 
+      console.log("Restaurant Context Set:", restaurantData.name);
+
+      // Redirect to the main dashboard
       window.location.href = "index.html";
-    } else {
-      errorMessage.style.display = "block";
-      errorMessage.textContent = "Incorrect email or password";
+    } catch (error) {
+      console.error("Login Error:", error.message);
+      alert("Login failed: " + error.message);
     }
   });
 }
