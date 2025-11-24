@@ -1,40 +1,46 @@
 const testReservations = [
   {
     name: "John Smith",
-    table: 305,
+    table: "305",
     numPeople: 3,
-    date: "25.11.2025",
+    date: "2025-11-25",
     time: "13:45",
     notes: "It is the birthday of his wife so please greet them with champagne",
     status: "booked",
   },
   {
     name: "James Miller",
-    table: 415,
+    table: "415",
     numPeople: 3,
-    date: "24.12.2025",
+    date: "2025-12-24",
     time: "12:25",
     notes: "Christmas",
     status: "booked",
   },
   {
     name: "John Smith",
-    table: 305,
+    table: "325",
     numPeople: 3,
-    date: "30.11.2025",
+    date: "2025-11-30",
     time: "13:45",
     notes: "It is the birthday of his wife so please greet them with champagne",
     status: "booked",
   },
   {
     name: "James Miller",
-    table: 415,
+    table: "45",
     numPeople: 3,
-    date: "15.11.2025",
+    date: "2025-11-15",
     time: "12:25",
     notes: "none",
     status: "booked",
   },
+];
+
+const restaurantLayout = [
+  { roomName: "300", tables: ["301", "305", "302", "306", "311"] },
+  { roomName: "400", tables: ["401", "415", "402", "406", "418"] },
+  { roomName: "500", tables: ["504", "515", "502", "512", "511"] },
 ];
 
 function reservationCard(reservation) {
@@ -66,6 +72,8 @@ for (reservation of testReservations) {
 }
 
 function openPopup() {
+  //everytime we open the popup we want to update the available tables
+  getAvailableTables();
   document.getElementById("popup").style.display = "flex";
 }
 
@@ -101,4 +109,35 @@ if (bookingForm) {
 
     bookingForm.reset();
   });
+}
+
+function getAvailableTables() {
+  const dropdownTables = document.getElementById("customerTableBooking");
+
+  dropdownTables.innerHTML = "";
+
+  const bookedTables = [];
+
+  for (const reservation of testReservations) {
+    // check what tables are booked
+    if (reservation.status == "booked") {
+      //add them to the list
+      bookedTables.push(reservation.table);
+    }
+  }
+
+  //go through the rooms of the restaurant
+  for (const room of restaurantLayout) {
+    // go through tables of the restaurant room
+    for (const table of room.tables) {
+      // if the table is not in the bookedTables list
+      if (!bookedTables.includes(table)) {
+        // create the option and push it to the input form
+        const option = document.createElement("option");
+        option.value = table;
+        option.textContent = `Table ${table}`;
+        dropdownTables.appendChild(option);
+      }
+    }
+  }
 }
