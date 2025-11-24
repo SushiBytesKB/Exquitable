@@ -126,3 +126,20 @@ label {
   margin-top: 2rem;
   display: none;
 }
+
+.toSignup {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-top: 2rem;
+
+  font-family: "Inter", sans-serif;
+  font-size: 1.5rem;
+  color: #4e342e;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.toSignup:hover {
+  color: #bf360c;
+}
