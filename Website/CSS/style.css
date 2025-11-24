@@ -461,3 +461,46 @@ input.btnSubmit:hover {
   position: relative;
   z-index: 3;
 }
+
+.seatingChartDiv
+{
+
+}
+
+.seatingChartName
+{
+
+}
+
+
+#tableListContainer 
+{
+  grid-column: 1 / -1; /* full width */
+  overflow-y: auto;
+  margin-bottom: 1rem;
+}
+
+.tableRow 
+{
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.tableRow input 
+{
+  width: 50%; 
+}
+
+.btnAddRow 
+{
+  grid-column: 1 / -1;
+  background-color: #795548;
+  color: white;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  width: fit-content;
+  margin: 0 auto;
+  border-radius: 3px;
+}
