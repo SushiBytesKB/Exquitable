@@ -1,47 +1,57 @@
-const testUsers = [
-  {
-    email: "admin@exquitable.com",
-    password: "admin",
-  },
-  {
-    email: "user@exquitable.com",
-    password: "user",
-  },
-  {
-    email: "guest@exquitable.com",
-    password: "guest",
-  },
-];
-
-// sign up needs: email and password
-// login needs: email and password
+import { supabase } from "./supabaseClient.js";
 
 const signupForm = document.getElementById("signupForm");
-const errorMessage = document.getElementById("errorMessage");
 
 if (signupForm) {
-  signupForm.addEventListener("submit", (event) => {
+  signupForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
-    const emailInput = document.getElementById("email").value;
-    const passwordInput = document.getElementById("password").value;
+    // Get values from the form
+    const restaurantName = document.getElementById("name").value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirmPassword").value;
 
-    let isAuthenticated = false;
-
-    for (const user of testUsers) {
-      if (user.email == emailInput && user.password == passwordInput) {
-        isAuthenticated = true;
-        break;
-      }
+    // Validation
+    if (password !== confirmPassword) {
+      alert("Passwords do not match!");
+      return;
     }
 
-    if (isAuthenticated) {
-      errorMessage.style.display = "none";
+    try {
+      // Create user in Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: email,
+        password: password,
+      });
 
-      window.location.href = "index.html";
-    } else {
-      errorMessage.style.display = "block";
-      errorMessage.textContent = "Incorrect email or password";
+      if (authError) throw authError;
+
+      if (authData.user) {
+        console.log("User created:", authData.user.id);
+
+        // create the restaurant entry
+        const { error: dbError } = await supabase.from("restaurants").insert([
+          {
+            name: restaurantName,
+            email: email,
+            owner_id: authData.user.id,
+          },
+        ]);
+
+        if (dbError) {
+          console.error("Error creating restaurant profile:", dbError);
+          alert(
+            "Account created, but failed to set up restaurant profile. Please contact support."
+          );
+        } else {
+          alert("Registration Successful! Please log in.");
+          window.location.href = "login.html";
+        }
+      }
+    } catch (error) {
+      console.error("Signup Error:", error.message);
+      alert("Signup failed: " + error.message);
     }
   });
 }
